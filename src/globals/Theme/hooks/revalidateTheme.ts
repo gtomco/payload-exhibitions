@@ -6,7 +6,7 @@ export const revalidateTheme: GlobalAfterChangeHook = ({ doc, req: { payload, co
   if (!context.disableRevalidate) {
     payload.logger.info(`Revalidating theme`)
 
-    revalidateTag('global_theme', 'max')
+    revalidateTag('global_theme')
   }
 
   return doc
