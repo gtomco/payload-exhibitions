@@ -8,12 +8,27 @@ import type { Post } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 
-export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'>
+export type CardDocData = {
+  slug: string
+  categories?:
+    | {
+        id?: number | string
+        title?: string | null
+      }[]
+    | null
+  meta?: {
+    description?: string | null
+    image?: any
+  } | null
+  title?: string | null
+}
+
+export type CardPostData = CardDocData
 
 export const Card: React.FC<{
   alignItems?: 'center'
   className?: string
-  doc?: CardPostData
+  doc?: CardDocData
   relationTo?: 'posts'
   showCategories?: boolean
   title?: string
