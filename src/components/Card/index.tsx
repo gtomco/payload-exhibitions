@@ -9,13 +9,9 @@ import type { Post } from '@/payload-types'
 import { Media } from '@/components/Media'
 
 export type CardDocData = {
-  slug: string
-  categories?:
-    | {
-        id?: number | string
-        title?: string | null
-      }[]
-    | null
+  [key: string]: any
+  slug?: string | null
+  categories?: any[] | null
   meta?: {
     description?: string | null
     image?: any
@@ -29,7 +25,7 @@ export const Card: React.FC<{
   alignItems?: 'center'
   className?: string
   doc?: CardDocData
-  relationTo?: 'posts'
+  relationTo?: string
   showCategories?: boolean
   title?: string
 }> = (props) => {
