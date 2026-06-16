@@ -11,9 +11,19 @@ import { HeaderNav } from './Nav'
 
 interface HeaderClientProps {
   data: Header
+  logoAlt?: string
+  logoSrc?: string
+  logoSrcDark?: string
+  sticky?: boolean
 }
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
+export const HeaderClient: React.FC<HeaderClientProps> = ({
+  data,
+  logoAlt,
+  logoSrc,
+  logoSrcDark,
+  sticky,
+}) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
@@ -30,10 +40,19 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   }, [headerTheme])
 
   return (
-    <header className="container relative z-20   " {...(theme ? { 'data-theme': theme } : {})}>
+    <header
+      className={`container relative z-20 ${sticky ? 'sticky top-0 bg-background' : ''}`}
+      {...(theme ? { 'data-theme': theme } : {})}
+    >
       <div className="py-8 flex justify-between">
         <Link href="/">
-          <Logo loading="eager" priority="high" className="invert dark:invert-0" />
+          <Logo
+            alt={logoAlt}
+            loading="eager"
+            priority="high"
+            src={logoSrc}
+            srcDark={logoSrcDark}
+          />
         </Link>
         <HeaderNav data={data} />
       </div>

@@ -3,7 +3,13 @@ import React from 'react'
 
 import { defaultTheme, themeLocalStorageKey } from '../ThemeSelector/types'
 
-export const InitTheme: React.FC = () => {
+type InitThemeProps = {
+  defaultMode?: 'dark' | 'light' | 'system'
+}
+
+export const InitTheme: React.FC<InitThemeProps> = ({ defaultMode }) => {
+  const mode = defaultMode ?? defaultTheme
+
   return (
     // eslint-disable-next-line @next/next/no-before-interactive-script-outside-document
     <Script
@@ -26,7 +32,8 @@ export const InitTheme: React.FC = () => {
       return theme === 'light' || theme === 'dark'
     }
 
-    var themeToSet = '${defaultTheme}'
+    var configuredMode = '${mode}'
+    var themeToSet = themeIsValid(configuredMode) ? configuredMode : 'light'
     var preference = window.localStorage.getItem('${themeLocalStorageKey}')
 
     if (themeIsValid(preference)) {
@@ -34,7 +41,9 @@ export const InitTheme: React.FC = () => {
     } else {
       var implicitPreference = getImplicitPreference()
 
-      if (implicitPreference) {
+      // Honor the system preference when no explicit choice has been made,
+      // or when the site is configured to follow the system.
+      if (implicitPreference && (configuredMode === 'system' || !themeIsValid(configuredMode))) {
         themeToSet = implicitPreference
       }
     }

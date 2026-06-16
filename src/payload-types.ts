@@ -112,10 +112,12 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    theme: Theme;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    theme: ThemeSelect<false> | ThemeSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1690,6 +1692,69 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
+ * Configure the look and feel of the site. Leave color fields blank to use the built-in defaults.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme".
+ */
+export interface Theme {
+  id: number;
+  /**
+   * Primary logo, shown in the header.
+   */
+  logo?: (number | null) | Media;
+  /**
+   * Optional alternate logo used in dark mode.
+   */
+  logoDark?: (number | null) | Media;
+  /**
+   * The color mode new visitors see first.
+   */
+  defaultMode?: ('light' | 'dark' | 'system') | null;
+  fontSans?: ('geist' | 'sans' | 'serif' | 'mono') | null;
+  fontMono?: ('geist' | 'sans' | 'serif' | 'mono') | null;
+  /**
+   * Corner rounding applied to buttons, cards and inputs.
+   */
+  radius?: ('none' | 'small' | 'medium' | 'large' | 'xlarge') | null;
+  /**
+   * Keep the header pinned to the top while scrolling.
+   */
+  stickyHeader?: boolean | null;
+  lightColors?: {
+    background?: string | null;
+    foreground?: string | null;
+    primary?: string | null;
+    primaryForeground?: string | null;
+    secondary?: string | null;
+    secondaryForeground?: string | null;
+    accent?: string | null;
+    accentForeground?: string | null;
+    muted?: string | null;
+    mutedForeground?: string | null;
+    card?: string | null;
+    cardForeground?: string | null;
+    border?: string | null;
+  };
+  darkColors?: {
+    background?: string | null;
+    foreground?: string | null;
+    primary?: string | null;
+    primaryForeground?: string | null;
+    secondary?: string | null;
+    secondaryForeground?: string | null;
+    accent?: string | null;
+    accentForeground?: string | null;
+    muted?: string | null;
+    mutedForeground?: string | null;
+    card?: string | null;
+    cardForeground?: string | null;
+    border?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
@@ -1730,6 +1795,56 @@ export interface FooterSelect<T extends boolean = true> {
               label?: T;
             };
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme_select".
+ */
+export interface ThemeSelect<T extends boolean = true> {
+  logo?: T;
+  logoDark?: T;
+  defaultMode?: T;
+  fontSans?: T;
+  fontMono?: T;
+  radius?: T;
+  stickyHeader?: T;
+  lightColors?:
+    | T
+    | {
+        background?: T;
+        foreground?: T;
+        primary?: T;
+        primaryForeground?: T;
+        secondary?: T;
+        secondaryForeground?: T;
+        accent?: T;
+        accentForeground?: T;
+        muted?: T;
+        mutedForeground?: T;
+        card?: T;
+        cardForeground?: T;
+        border?: T;
+      };
+  darkColors?:
+    | T
+    | {
+        background?: T;
+        foreground?: T;
+        primary?: T;
+        primaryForeground?: T;
+        secondary?: T;
+        secondaryForeground?: T;
+        accent?: T;
+        accentForeground?: T;
+        muted?: T;
+        mutedForeground?: T;
+        card?: T;
+        cardForeground?: T;
+        border?: T;
       };
   updatedAt?: T;
   createdAt?: T;
