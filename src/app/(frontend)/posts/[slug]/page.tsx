@@ -14,6 +14,7 @@ import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -51,16 +52,19 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   if (!post) return <PayloadRedirects url={url} />
 
+  const theme = await getCachedGlobal('theme', 1)()
+  const heroDarkOverlay = Boolean(theme?.heroDarkOverlay)
+
   return (
     <article className="pt-16 pb-16">
-      <PageClient />
+      <PageClient heroDarkOverlay={heroDarkOverlay} />
 
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
 
-      <PostHero post={post} />
+      <PostHero post={post} darkOverlay={heroDarkOverlay} />
 
       <div className="flex flex-col items-center gap-4 pt-8">
         <div className="container">

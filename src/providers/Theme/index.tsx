@@ -34,21 +34,28 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   useEffect(() => {
-    let themeToSet: Theme = defaultTheme
     const preference = window.localStorage.getItem(themeLocalStorageKey)
 
     if (themeIsValid(preference)) {
-      themeToSet = preference
-    } else {
-      const implicitPreference = getImplicitPreference()
-
-      if (implicitPreference) {
-        themeToSet = implicitPreference
-      }
+      document.documentElement.setAttribute('data-theme', preference)
+      setThemeState(preference)
+      return
     }
 
-    document.documentElement.setAttribute('data-theme', themeToSet)
-    setThemeState(themeToSet)
+    // No saved preference — trust what InitTheme already set on the document
+    // (which already considered the admin defaultMode config).
+    const alreadySet = document.documentElement.getAttribute('data-theme') as Theme
+    if (themeIsValid(alreadySet)) {
+      setThemeState(alreadySet)
+      return
+    }
+
+    // Final fallback: system preference
+    const implicitPreference = getImplicitPreference()
+    if (implicitPreference) {
+      document.documentElement.setAttribute('data-theme', implicitPreference)
+      setThemeState(implicitPreference)
+    }
   }, [])
 
   return <ThemeContext value={{ setTheme, theme }}>{children}</ThemeContext>

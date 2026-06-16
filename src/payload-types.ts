@@ -1692,7 +1692,7 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
- * Configure the look and feel of the site. Leave color fields blank to use the built-in defaults.
+ * Configure the look and feel of the site — colors, typography, branding and shape.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "theme".
@@ -1704,15 +1704,13 @@ export interface Theme {
    */
   logo?: (number | null) | Media;
   /**
-   * Optional alternate logo used in dark mode.
+   * Optional alternate logo for dark mode.
    */
   logoDark?: (number | null) | Media;
   /**
    * The color mode new visitors see first.
    */
   defaultMode?: ('light' | 'dark' | 'system') | null;
-  fontSans?: ('geist' | 'sans' | 'serif' | 'mono') | null;
-  fontMono?: ('geist' | 'sans' | 'serif' | 'mono') | null;
   /**
    * Corner rounding applied to buttons, cards and inputs.
    */
@@ -1721,6 +1719,16 @@ export interface Theme {
    * Keep the header pinned to the top while scrolling.
    */
   stickyHeader?: boolean | null;
+  /**
+   * Render image heroes (home & posts) in dark mode with white text. Turn off to follow the page theme colors instead.
+   */
+  heroDarkOverlay?: boolean | null;
+  fontSans?: ('geist' | 'sans' | 'serif' | 'mono') | null;
+  fontHeading?: ('geist' | 'sans' | 'serif' | 'mono') | null;
+  fontMono?: ('geist' | 'sans' | 'serif' | 'mono') | null;
+  headingWeight?: ('normal' | 'medium' | 'semibold' | 'bold') | null;
+  baseFontSize?: ('small' | 'medium' | 'large' | 'xlarge') | null;
+  lineHeight?: ('tight' | 'normal' | 'relaxed') | null;
   lightColors?: {
     background?: string | null;
     foreground?: string | null;
@@ -1808,10 +1816,15 @@ export interface ThemeSelect<T extends boolean = true> {
   logo?: T;
   logoDark?: T;
   defaultMode?: T;
-  fontSans?: T;
-  fontMono?: T;
   radius?: T;
   stickyHeader?: T;
+  heroDarkOverlay?: T;
+  fontSans?: T;
+  fontHeading?: T;
+  fontMono?: T;
+  headingWeight?: T;
+  baseFontSize?: T;
+  lineHeight?: T;
   lightColors?:
     | T
     | {

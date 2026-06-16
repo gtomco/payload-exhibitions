@@ -8,17 +8,24 @@ import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
 
-export const HighImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
+export const HighImpactHero: React.FC<Page['hero'] & { darkOverlay?: boolean }> = ({
+  darkOverlay = true,
+  links,
+  media,
+  richText,
+}) => {
   const { setHeaderTheme } = useHeaderTheme()
 
   useEffect(() => {
-    setHeaderTheme('dark')
-  })
+    if (darkOverlay) {
+      setHeaderTheme('dark')
+    }
+  }, [darkOverlay, setHeaderTheme])
 
   return (
     <div
-      className="relative -mt-[10.4rem] flex items-center justify-center text-white"
-      data-theme="dark"
+      className={`relative -mt-[10.4rem] flex items-center justify-center ${darkOverlay ? 'text-white' : 'text-foreground'}`}
+      {...(darkOverlay ? { 'data-theme': 'dark' } : {})}
     >
       <div className="container mb-8 z-10 relative flex items-center justify-center">
         <div className="max-w-[36.5rem] md:text-center">

@@ -1,5 +1,6 @@
 import type { CollectionSlug, GlobalSlug, Payload, PayloadRequest, File } from 'payload'
 
+import { DEFAULT_DARK_COLORS, DEFAULT_LIGHT_COLORS } from '@/globals/Theme/tokens'
 import { contactForm as contactFormData } from './contact-form'
 import { contact as contactPageData } from './contact-page'
 import { home } from './home'
@@ -273,6 +274,26 @@ export const seed = async ({
       },
     }),
   ])
+
+  payload.logger.info(`— Seeding theme...`)
+
+  await payload.updateGlobal({
+    slug: 'theme',
+    data: {
+      baseFontSize: 'medium',
+      darkColors: DEFAULT_DARK_COLORS,
+      defaultMode: 'light',
+      fontHeading: 'geist',
+      fontMono: 'mono',
+      fontSans: 'geist',
+      headingWeight: 'semibold',
+      heroDarkOverlay: true,
+      lightColors: DEFAULT_LIGHT_COLORS,
+      lineHeight: 'normal',
+      radius: 'medium',
+      stickyHeader: false,
+    },
+  })
 
   payload.logger.info('Seeded database successfully!')
 }

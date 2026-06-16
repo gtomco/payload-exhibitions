@@ -12,6 +12,7 @@ import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -65,16 +66,18 @@ export default async function Page({ params: paramsPromise }: Args) {
   }
 
   const { hero, layout } = page
+  const theme = await getCachedGlobal('theme', 1)()
+  const heroDarkOverlay = Boolean(theme?.heroDarkOverlay)
 
   return (
     <article className="pt-16 pb-24">
-      <PageClient />
+      <PageClient heroDarkOverlay={heroDarkOverlay} />
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
 
-      <RenderHero {...hero} />
+      <RenderHero {...hero} darkOverlay={heroDarkOverlay} />
       <RenderBlocks blocks={layout} />
     </article>
   )

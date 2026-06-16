@@ -62,3 +62,79 @@ export const RADIUS_OPTIONS = [
   { label: 'Large', value: 'large' },
   { label: 'Extra Large', value: 'xlarge' },
 ]
+
+export const FONT_SIZE_VALUES: Record<string, string> = {
+  large: '1.125rem',
+  medium: '1rem',
+  small: '0.9375rem',
+  xlarge: '1.25rem',
+}
+
+export const FONT_SIZE_OPTIONS = [
+  { label: 'Small (15px)', value: 'small' },
+  { label: 'Medium (16px, default)', value: 'medium' },
+  { label: 'Large (18px)', value: 'large' },
+  { label: 'Extra Large (20px)', value: 'xlarge' },
+]
+
+export const LINE_HEIGHT_VALUES: Record<string, string> = {
+  normal: '1.5',
+  relaxed: '1.75',
+  tight: '1.3',
+}
+
+export const LINE_HEIGHT_OPTIONS = [
+  { label: 'Tight', value: 'tight' },
+  { label: 'Normal (default)', value: 'normal' },
+  { label: 'Relaxed', value: 'relaxed' },
+]
+
+export const HEADING_WEIGHT_VALUES: Record<string, string> = {
+  bold: '700',
+  medium: '500',
+  normal: '400',
+  semibold: '600',
+}
+
+export const HEADING_WEIGHT_OPTIONS = [
+  { label: 'Normal', value: 'normal' },
+  { label: 'Medium', value: 'medium' },
+  { label: 'Semibold (default)', value: 'semibold' },
+  { label: 'Bold', value: 'bold' },
+]
+
+/**
+ * Default color values per mode (hex), approximating the built-in oklch palette
+ * in globals.css. Used as field defaults, for seeding, and in the live preview.
+ */
+export const DEFAULT_LIGHT_COLORS: Record<string, string> = {
+  accent: '#f7f7f7',
+  accentForeground: '#343434',
+  background: '#ffffff',
+  border: '#ebebeb',
+  card: '#f3f4f6',
+  cardForeground: '#252525',
+  foreground: '#252525',
+  muted: '#f7f7f7',
+  mutedForeground: '#8e8e8e',
+  primary: '#343434',
+  primaryForeground: '#fbfbfb',
+  secondary: '#f7f7f7',
+  secondaryForeground: '#343434',
+}
+
+export const DEFAULT_DARK_COLORS: Record<string, string> = {
+  accent: '#434343',
+  accentForeground: '#fbfbfb',
+  background: '#252525',
+  border: '#434343',
+  card: '#2a2a2a',
+  cardForeground: '#fbfbfb',
+  foreground: '#fbfbfb',
+  muted: '#434343',
+  mutedForeground: '#b5b5b5',
+  primary: '#fbfbfb',
+  primaryForeground: '#343434',
+  secondary: '#434343',
+  secondaryForeground: '#fbfbfb',
+}
