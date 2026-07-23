@@ -52,6 +52,7 @@ export const Events: CollectionConfig<'events'> = {
   admin: {
     baseFilter: micrositeBaseFilter,
     defaultColumns: ['title', 'slug', 'microsite', 'eventDate', '_status', 'updatedAt'],
+    group: 'Microsite',
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({

@@ -14,6 +14,7 @@ import * as migration_20260722_140000_nav_page_relationships from './20260722_14
 import * as migration_20260723_010000_main_site from './20260723_010000_main_site';
 import * as migration_20260723_020000_main_site_expand from './20260723_020000_main_site_expand';
 import * as migration_20260723_030000_visitors from './20260723_030000_visitors';
+import * as migration_20260723_040000_main_site_seo from './20260723_040000_main_site_seo';
 
 export const migrations = [
   {
@@ -95,5 +96,10 @@ export const migrations = [
     up: migration_20260723_030000_visitors.up,
     down: migration_20260723_030000_visitors.down,
     name: '20260723_030000_visitors',
+  },
+  {
+    up: migration_20260723_040000_main_site_seo.up,
+    down: migration_20260723_040000_main_site_seo.down,
+    name: '20260723_040000_main_site_seo',
   },
 ]

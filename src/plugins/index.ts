@@ -36,6 +36,7 @@ export const plugins: Plugin[] = [
       admin: {
         ...micrositeAdminFilter,
         defaultColumns: ['from', 'to', 'microsite', 'updatedAt'],
+        group: 'Microsite',
       },
       // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
       fields: ({ defaultFields }) => {
@@ -71,6 +72,9 @@ export const plugins: Plugin[] = [
       payment: false,
     },
     formOverrides: {
+      admin: {
+        group: 'System',
+      },
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
           if ('name' in field && field.name === 'confirmationMessage') {
@@ -91,6 +95,11 @@ export const plugins: Plugin[] = [
         })
       },
     },
+    formSubmissionOverrides: {
+      admin: {
+        group: 'System',
+      },
+    },
   }),
   searchPlugin({
     collections: ['posts', 'events'],
@@ -98,6 +107,7 @@ export const plugins: Plugin[] = [
     searchOverrides: {
       admin: {
         ...micrositeAdminFilter,
+        group: 'System',
       },
       fields: ({ defaultFields }) => {
         return [

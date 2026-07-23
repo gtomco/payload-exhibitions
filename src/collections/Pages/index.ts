@@ -45,6 +45,7 @@ export const Pages: CollectionConfig<'pages'> = {
   admin: {
     baseFilter: micrositeBaseFilter,
     defaultColumns: ['title', 'slug', 'microsite', '_status', 'updatedAt'],
+    group: 'Microsite',
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({

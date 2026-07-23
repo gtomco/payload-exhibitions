@@ -28,6 +28,7 @@ export const MicrositeSettings: CollectionConfig<'microsite-settings'> = {
     defaultColumns: ['label', 'crmEventName', 'microsite', 'contactEmail', 'updatedAt'],
     description:
       'One settings document per microsite — contact details and hero/footer copy for the public fair site.',
+    group: 'Microsite',
     useAsTitle: 'label',
   },
   fields: [

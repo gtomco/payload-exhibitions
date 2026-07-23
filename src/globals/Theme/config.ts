@@ -34,7 +34,7 @@ export const Theme: GlobalConfig = {
   },
   admin: {
     description: 'Configure the look and feel of the site — colors, typography, branding and shape.',
-    group: 'Site Settings',
+    group: 'Platform',
   },
   fields: [
     {

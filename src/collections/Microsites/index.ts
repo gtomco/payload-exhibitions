@@ -14,9 +14,10 @@ export const Microsites: CollectionConfig<'microsites'> = {
   },
   admin: {
     defaultColumns: ['title', 'slug', 'isActive', 'updatedAt'],
-    useAsTitle: 'title',
     description:
       'Each fair brand (e.g. ECGE 2026). Posts, pages and events are assigned to a microsite and appear on that fair’s public site.',
+    group: 'Platform',
+    useAsTitle: 'title',
   },
   fields: [
     {

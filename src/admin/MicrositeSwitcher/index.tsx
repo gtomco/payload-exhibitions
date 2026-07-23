@@ -114,10 +114,14 @@ const MicrositeSwitcher: React.FC = () => {
       </select>
       {active ? (
         <p className="microsite-switcher__hint">
-          Managing <strong>{active.title}</strong> — new posts, pages and events are assigned here.
+          Editing fair content under <strong>Microsite</strong> for{' '}
+          <strong>{active.title}</strong> (settings, pages, posts, events, visitors).{' '}
+          <strong>Platform</strong> items (Microsites registry, IX Main Site, Theme) are separate.
         </p>
       ) : (
-        <p className="microsite-switcher__hint">Showing content from every microsite.</p>
+        <p className="microsite-switcher__hint">
+          Showing content from every microsite. Pick a fair above to scope Microsite collections.
+        </p>
       )}
     </div>
   )

@@ -81,14 +81,18 @@ export default buildConfig({
     prodMigrations: migrations,
   }),
   collections: [
-    Microsites,
+    // Microsite (switcher-scoped) — first group in sidebar
     MicrositeSettings,
     Pages,
     Posts,
     Events,
     Visitors,
+    // Platform
+    Microsites,
+    // Library
     Media,
     Categories,
+    // System
     Users,
   ],
   email: await nodemailerAdapter(
@@ -131,7 +135,7 @@ export default buildConfig({
     'http://127.0.0.1:8082',
     'http://127.0.0.1:8081',
   ].filter(Boolean),
-  globals: [Header, Footer, Theme, MainSite],
+  globals: [MainSite, Theme, Header, Footer],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   sharp,

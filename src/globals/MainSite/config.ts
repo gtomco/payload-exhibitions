@@ -38,6 +38,7 @@ export const MainSite: GlobalConfig = {
   admin: {
     description:
       'Corporate i-exhibitions.com homepage — every section, platform link, news card, video, and theme color.',
+    group: 'Platform',
   },
   fields: [
     {

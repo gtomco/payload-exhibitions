@@ -67,12 +67,12 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    microsites: Microsite;
     'microsite-settings': MicrositeSetting;
     pages: Page;
     posts: Post;
     events: Event;
     visitors: Visitor;
+    microsites: Microsite;
     media: Media;
     categories: Category;
     users: User;
@@ -93,12 +93,12 @@ export interface Config {
     };
   };
   collectionsSelect: {
-    microsites: MicrositesSelect<false> | MicrositesSelect<true>;
     'microsite-settings': MicrositeSettingsSelect<false> | MicrositeSettingsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     visitors: VisitorsSelect<false> | VisitorsSelect<true>;
+    microsites: MicrositesSelect<false> | MicrositesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -118,16 +118,16 @@ export interface Config {
   };
   fallbackLocale: null;
   globals: {
+    'main-site': MainSite;
+    theme: Theme;
     header: Header;
     footer: Footer;
-    theme: Theme;
-    'main-site': MainSite;
   };
   globalsSelect: {
+    'main-site': MainSiteSelect<false> | MainSiteSelect<true>;
+    theme: ThemeSelect<false> | ThemeSelect<true>;
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
-    theme: ThemeSelect<false> | ThemeSelect<true>;
-    'main-site': MainSiteSelect<false> | MainSiteSelect<true>;
   };
   locale: null;
   widgets: {
@@ -162,44 +162,6 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
-}
-/**
- * Each fair brand (e.g. ECGE 2026). Posts, pages and events are assigned to a microsite and appear on that fair’s public site.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "microsites".
- */
-export interface Microsite {
-  id: number;
-  title: string;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  description?: string | null;
-  isActive?: boolean | null;
-  /**
-   * Public Next.js origin in development. Leave blank to use http://{slug}.{ROOT_DOMAIN} or /m/{slug} locally.
-   */
-  devUrl?: string | null;
-  /**
-   * Optional override. Leave blank to use https://{slug}.{ROOT_DOMAIN} from env ROOT_DOMAIN.
-   */
-  productionUrl?: string | null;
-  crmEventName?: string | null;
-  /**
-   * Prefer setting this on Microsite Settings. Fallback if settings doc is missing.
-   */
-  crmEventId?: string | null;
-  /**
-   * Prefer Theme on Microsite Settings. Used only if settings theme is empty.
-   */
-  primaryColor?: string | null;
-  secondaryColor?: string | null;
-  darkColor?: string | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * One settings document per microsite — contact details and hero/footer copy for the public fair site.
@@ -313,6 +275,44 @@ export interface MicrositeSetting {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Each fair brand (e.g. ECGE 2026). Posts, pages and events are assigned to a microsite and appear on that fair’s public site.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "microsites".
+ */
+export interface Microsite {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  description?: string | null;
+  isActive?: boolean | null;
+  /**
+   * Public Next.js origin in development. Leave blank to use http://{slug}.{ROOT_DOMAIN} or /m/{slug} locally.
+   */
+  devUrl?: string | null;
+  /**
+   * Optional override. Leave blank to use https://{slug}.{ROOT_DOMAIN} from env ROOT_DOMAIN.
+   */
+  productionUrl?: string | null;
+  crmEventName?: string | null;
+  /**
+   * Prefer setting this on Microsite Settings. Fallback if settings doc is missing.
+   */
+  crmEventId?: string | null;
+  /**
+   * Prefer Theme on Microsite Settings. Used only if settings theme is empty.
+   */
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  darkColor?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1320,10 +1320,6 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'microsites';
-        value: number | Microsite;
-      } | null)
-    | ({
         relationTo: 'microsite-settings';
         value: number | MicrositeSetting;
       } | null)
@@ -1342,6 +1338,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'visitors';
         value: number | Visitor;
+      } | null)
+    | ({
+        relationTo: 'microsites';
+        value: number | Microsite;
       } | null)
     | ({
         relationTo: 'media';
@@ -1416,26 +1416,6 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "microsites_select".
- */
-export interface MicrositesSelect<T extends boolean = true> {
-  title?: T;
-  generateSlug?: T;
-  slug?: T;
-  description?: T;
-  isActive?: T;
-  devUrl?: T;
-  productionUrl?: T;
-  crmEventName?: T;
-  crmEventId?: T;
-  primaryColor?: T;
-  secondaryColor?: T;
-  darkColor?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1750,6 +1730,26 @@ export interface VisitorsSelect<T extends boolean = true> {
   eventLocation?: T;
   emailSentAt?: T;
   emailError?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "microsites_select".
+ */
+export interface MicrositesSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  description?: T;
+  isActive?: T;
+  devUrl?: T;
+  productionUrl?: T;
+  crmEventName?: T;
+  crmEventId?: T;
+  primaryColor?: T;
+  secondaryColor?: T;
+  darkColor?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2168,143 +2168,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "header".
- */
-export interface Header {
-  id: number;
-  navItems?:
-    | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null)
-            | ({
-                relationTo: 'events';
-                value: number | Event;
-              } | null);
-          url?: string | null;
-          label: string;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer".
- */
-export interface Footer {
-  id: number;
-  navItems?:
-    | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null)
-            | ({
-                relationTo: 'events';
-                value: number | Event;
-              } | null);
-          url?: string | null;
-          label: string;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * Configure the look and feel of the site — colors, typography, branding and shape.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "theme".
- */
-export interface Theme {
-  id: number;
-  /**
-   * Primary logo, shown in the header.
-   */
-  logo?: (number | null) | Media;
-  /**
-   * Optional alternate logo for dark mode.
-   */
-  logoDark?: (number | null) | Media;
-  /**
-   * The color mode new visitors see first.
-   */
-  defaultMode?: ('light' | 'dark' | 'system') | null;
-  /**
-   * Corner rounding applied to buttons, cards and inputs.
-   */
-  radius?: ('none' | 'small' | 'medium' | 'large' | 'xlarge') | null;
-  /**
-   * Keep the header pinned to the top while scrolling.
-   */
-  stickyHeader?: boolean | null;
-  /**
-   * Render image heroes (home & posts) in dark mode with white text. Turn off to follow the page theme colors instead.
-   */
-  heroDarkOverlay?: boolean | null;
-  fontSans?: ('geist' | 'sans' | 'serif' | 'mono') | null;
-  fontHeading?: ('geist' | 'sans' | 'serif' | 'mono') | null;
-  fontMono?: ('geist' | 'sans' | 'serif' | 'mono') | null;
-  headingWeight?: ('normal' | 'medium' | 'semibold' | 'bold') | null;
-  baseFontSize?: ('small' | 'medium' | 'large' | 'xlarge') | null;
-  lineHeight?: ('tight' | 'normal' | 'relaxed') | null;
-  lightColors?: {
-    background?: string | null;
-    foreground?: string | null;
-    primary?: string | null;
-    primaryForeground?: string | null;
-    secondary?: string | null;
-    secondaryForeground?: string | null;
-    accent?: string | null;
-    accentForeground?: string | null;
-    muted?: string | null;
-    mutedForeground?: string | null;
-    card?: string | null;
-    cardForeground?: string | null;
-    border?: string | null;
-  };
-  darkColors?: {
-    background?: string | null;
-    foreground?: string | null;
-    primary?: string | null;
-    primaryForeground?: string | null;
-    secondary?: string | null;
-    secondaryForeground?: string | null;
-    accent?: string | null;
-    accentForeground?: string | null;
-    muted?: string | null;
-    mutedForeground?: string | null;
-    card?: string | null;
-    cardForeground?: string | null;
-    border?: string | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
  * Corporate i-exhibitions.com homepage — every section, platform link, news card, video, and theme color.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2526,105 +2389,141 @@ export interface MainSite {
   createdAt?: string | null;
 }
 /**
+ * Configure the look and feel of the site — colors, typography, branding and shape.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "header_select".
+ * via the `definition` "theme".
  */
-export interface HeaderSelect<T extends boolean = true> {
-  navItems?:
-    | T
-    | {
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-            };
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
+export interface Theme {
+  id: number;
+  /**
+   * Primary logo, shown in the header.
+   */
+  logo?: (number | null) | Media;
+  /**
+   * Optional alternate logo for dark mode.
+   */
+  logoDark?: (number | null) | Media;
+  /**
+   * The color mode new visitors see first.
+   */
+  defaultMode?: ('light' | 'dark' | 'system') | null;
+  /**
+   * Corner rounding applied to buttons, cards and inputs.
+   */
+  radius?: ('none' | 'small' | 'medium' | 'large' | 'xlarge') | null;
+  /**
+   * Keep the header pinned to the top while scrolling.
+   */
+  stickyHeader?: boolean | null;
+  /**
+   * Render image heroes (home & posts) in dark mode with white text. Turn off to follow the page theme colors instead.
+   */
+  heroDarkOverlay?: boolean | null;
+  fontSans?: ('geist' | 'sans' | 'serif' | 'mono') | null;
+  fontHeading?: ('geist' | 'sans' | 'serif' | 'mono') | null;
+  fontMono?: ('geist' | 'sans' | 'serif' | 'mono') | null;
+  headingWeight?: ('normal' | 'medium' | 'semibold' | 'bold') | null;
+  baseFontSize?: ('small' | 'medium' | 'large' | 'xlarge') | null;
+  lineHeight?: ('tight' | 'normal' | 'relaxed') | null;
+  lightColors?: {
+    background?: string | null;
+    foreground?: string | null;
+    primary?: string | null;
+    primaryForeground?: string | null;
+    secondary?: string | null;
+    secondaryForeground?: string | null;
+    accent?: string | null;
+    accentForeground?: string | null;
+    muted?: string | null;
+    mutedForeground?: string | null;
+    card?: string | null;
+    cardForeground?: string | null;
+    border?: string | null;
+  };
+  darkColors?: {
+    background?: string | null;
+    foreground?: string | null;
+    primary?: string | null;
+    primaryForeground?: string | null;
+    secondary?: string | null;
+    secondaryForeground?: string | null;
+    accent?: string | null;
+    accentForeground?: string | null;
+    muted?: string | null;
+    mutedForeground?: string | null;
+    card?: string | null;
+    cardForeground?: string | null;
+    border?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "footer_select".
+ * via the `definition` "header".
  */
-export interface FooterSelect<T extends boolean = true> {
+export interface Header {
+  id: number;
   navItems?:
-    | T
     | {
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
-            };
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'events';
+                value: number | Event;
+              } | null);
+          url?: string | null;
+          label: string;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "theme_select".
+ * via the `definition` "footer".
  */
-export interface ThemeSelect<T extends boolean = true> {
-  logo?: T;
-  logoDark?: T;
-  defaultMode?: T;
-  radius?: T;
-  stickyHeader?: T;
-  heroDarkOverlay?: T;
-  fontSans?: T;
-  fontHeading?: T;
-  fontMono?: T;
-  headingWeight?: T;
-  baseFontSize?: T;
-  lineHeight?: T;
-  lightColors?:
-    | T
+export interface Footer {
+  id: number;
+  navItems?:
     | {
-        background?: T;
-        foreground?: T;
-        primary?: T;
-        primaryForeground?: T;
-        secondary?: T;
-        secondaryForeground?: T;
-        accent?: T;
-        accentForeground?: T;
-        muted?: T;
-        mutedForeground?: T;
-        card?: T;
-        cardForeground?: T;
-        border?: T;
-      };
-  darkColors?:
-    | T
-    | {
-        background?: T;
-        foreground?: T;
-        primary?: T;
-        primaryForeground?: T;
-        secondary?: T;
-        secondaryForeground?: T;
-        accent?: T;
-        accentForeground?: T;
-        muted?: T;
-        mutedForeground?: T;
-        card?: T;
-        cardForeground?: T;
-        border?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'events';
+                value: number | Event;
+              } | null);
+          url?: string | null;
+          label: string;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2822,6 +2721,107 @@ export interface MainSiteSelect<T extends boolean = true> {
   facebook?: T;
   linkedin?: T;
   youtube?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme_select".
+ */
+export interface ThemeSelect<T extends boolean = true> {
+  logo?: T;
+  logoDark?: T;
+  defaultMode?: T;
+  radius?: T;
+  stickyHeader?: T;
+  heroDarkOverlay?: T;
+  fontSans?: T;
+  fontHeading?: T;
+  fontMono?: T;
+  headingWeight?: T;
+  baseFontSize?: T;
+  lineHeight?: T;
+  lightColors?:
+    | T
+    | {
+        background?: T;
+        foreground?: T;
+        primary?: T;
+        primaryForeground?: T;
+        secondary?: T;
+        secondaryForeground?: T;
+        accent?: T;
+        accentForeground?: T;
+        muted?: T;
+        mutedForeground?: T;
+        card?: T;
+        cardForeground?: T;
+        border?: T;
+      };
+  darkColors?:
+    | T
+    | {
+        background?: T;
+        foreground?: T;
+        primary?: T;
+        primaryForeground?: T;
+        secondary?: T;
+        secondaryForeground?: T;
+        accent?: T;
+        accentForeground?: T;
+        muted?: T;
+        mutedForeground?: T;
+        card?: T;
+        cardForeground?: T;
+        border?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header_select".
+ */
+export interface HeaderSelect<T extends boolean = true> {
+  navItems?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  navItems?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+            };
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
