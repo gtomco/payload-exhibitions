@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useState } from 'react'
 
-import { DEFAULT_PUBLIC_LANG, type PublicLang } from '@/microsite/constants'
+import { type PublicLang } from '@/microsite/constants'
 import type { IxMainContent, IxPlatformLink } from '@/main-site/defaults'
 
 type Props = {
@@ -16,7 +16,8 @@ type Props = {
 function switchLangHref(target: PublicLang, pathname: string) {
   let path = pathname || '/'
   path = path.replace(/^\/(en|sq)(?=\/|$)/, '') || '/'
-  if (target === DEFAULT_PUBLIC_LANG) return path
+  // Always use an explicit /en or /sq prefix so middleware sets lang from the URL
+  // (unprefixed `/` would keep a stale `en` cookie and Albanian would appear broken).
   return path === '/' ? `/${target}` : `/${target}${path}`
 }
 

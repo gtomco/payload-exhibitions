@@ -12,7 +12,7 @@ import {
 type MetaDoc = Partial<Page> | Partial<Post> | Partial<Event> | null
 
 const getImageURL = (serverUrl: string, image?: Media | Config['db']['defaultIDType'] | null) => {
-  let url = `${serverUrl}/ix/hero-venue.png`
+  let url = `${serverUrl}/ix/og-default.png`
 
   if (image && typeof image === 'object' && 'url' in image) {
     const ogUrl = image.sizes?.og?.url

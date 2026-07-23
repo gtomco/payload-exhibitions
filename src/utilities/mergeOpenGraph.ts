@@ -7,7 +7,7 @@ const defaultOpenGraph: Metadata['openGraph'] = {
     'We build platforms — recurring meeting points where entire industries come together to open markets, spark collaboration and grow.',
   images: [
     {
-      url: `${getServerSideURL()}/ix/hero-venue.png`,
+      url: `${getServerSideURL()}/ix/og-default.png`,
     },
   ],
   siteName: 'IX Exhibitions',

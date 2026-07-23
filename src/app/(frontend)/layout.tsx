@@ -164,7 +164,7 @@ export async function generateMetadata(): Promise<Metadata> {
     }),
     twitter: {
       card: 'summary_large_image',
-      images: [`${origin || getServerSideURL()}/ix/hero-venue.png`],
+      images: [`${origin || getServerSideURL()}/ix/og-default.png`],
     },
   }
 }

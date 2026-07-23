@@ -62,6 +62,7 @@ export function middleware(request: NextRequest) {
     (hostname.includes('localhost') || hostname.startsWith('127.') ? 'http' : 'https')
   const origin = host ? `${proto}://${host.split(',')[0].trim()}` : ''
 
+  // URL prefix always wins over cookie. Cookie only applies when the path has no /en|/sq.
   let lang: PublicLang = DEFAULT_PUBLIC_LANG
   const cookieLang = request.cookies.get(PUBLIC_LANG_COOKIE)?.value
   if (cookieLang && isPublicLang(cookieLang)) lang = cookieLang
@@ -70,9 +71,13 @@ export function middleware(request: NextRequest) {
   if (langQuery && isPublicLang(langQuery)) {
     const clean = request.nextUrl.clone()
     clean.searchParams.delete('lang')
-    const prefix = langQuery === DEFAULT_PUBLIC_LANG ? '' : `/${langQuery}`
-    const path = clean.pathname === '/' ? '/' : clean.pathname
-    clean.pathname = prefix ? `${prefix}${path === '/' ? '' : path}` : path
+    const stripped =
+      clean.pathname.replace(/^\/m\/[a-z0-9-]+/i, '').replace(/^\/(en|sq)(?=\/|$)/, '') || '/'
+    const micrositePrefix = clean.pathname.match(/^\/m\/[a-z0-9-]+/i)?.[0] || ''
+    clean.pathname =
+      stripped === '/'
+        ? `${micrositePrefix}/${langQuery}`
+        : `${micrositePrefix}/${langQuery}${stripped}`
     return withLangCookie(NextResponse.redirect(clean), langQuery)
   }
 
@@ -97,6 +102,10 @@ export function middleware(request: NextRequest) {
     lang = langPrefix[1] as PublicLang
     langPrefixCode = lang
     workingPath = workingPath.replace(/^\/(en|sq)/, '') || '/'
+  } else if (pathname === '/' || pathname === '') {
+    // Bare apex: prefer default locale over a stale cookie so SQ↔EN toggles work.
+    // Visitors who want English use /en (switcher always links there).
+    lang = DEFAULT_PUBLIC_LANG
   }
 
   const needsRewrite = workingPath !== pathname
