@@ -169,35 +169,44 @@
   transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
 }
 
+/* Use a.ix-btn* so these beat `.ix-site a { color: inherit }` */
+.ix-site a.ix-btn--solid,
 .ix-btn--solid {
   background: var(--ix-black);
   color: var(--ix-white);
 }
 
+.ix-site a.ix-btn--solid:hover,
 .ix-btn--solid:hover {
   background: var(--ix-orange);
   border-color: var(--ix-orange);
+  color: var(--ix-white);
 }
 
+.ix-site a.ix-btn--ghost,
 .ix-btn--ghost {
   background: transparent;
   color: var(--ix-black);
 }
 
+.ix-site a.ix-btn--ghost:hover,
 .ix-btn--ghost:hover {
   background: var(--ix-black);
   color: var(--ix-white);
 }
 
+.ix-site a.ix-btn--ghost-light,
 .ix-btn--ghost-light {
   background: transparent;
   color: var(--ix-white);
   border-color: var(--ix-white);
 }
 
+.ix-site a.ix-btn--ghost-light:hover,
 .ix-btn--ghost-light:hover {
   background: var(--ix-orange);
   border-color: var(--ix-orange);
+  color: var(--ix-white);
 }
 
 .ix-text-link {
