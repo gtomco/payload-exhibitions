@@ -2,6 +2,7 @@ import Image from 'next/image'
 import React from 'react'
 
 import type { IxMainContent } from '@/main-site/defaults'
+import { PhotoGallery } from '@/components/PhotoGallery'
 
 type Props = {
   content: IxMainContent
@@ -338,6 +339,32 @@ export function IxHomePage({ content }: Props) {
                 </a>
               ))}
             </div>
+          </div>
+        </section>
+      ) : null}
+
+      {content.galleryItems.length ? (
+        <section className="ix-gallery" id="gallery">
+          <div className="ix-wrap">
+            <div className="ix-gallery__head">
+              <div>
+                <p className="ix-label ix-label--orange">{content.galleryEyebrow}</p>
+                <h2 className="ix-display ix-gallery__title">{content.galleryHeading}</h2>
+                {content.galleryIntro ? <p className="ix-gallery__intro">{content.galleryIntro}</p> : null}
+              </div>
+            </div>
+            <PhotoGallery
+              items={content.galleryItems.map((item, index) => ({
+                id: String(index),
+                thumbUrl: item.thumbUrl,
+                fullUrl: item.fullUrl,
+                alt: item.alt,
+                caption: item.caption,
+                width: item.width,
+                height: item.height,
+              }))}
+              style="grid"
+            />
           </div>
         </section>
       ) : null}

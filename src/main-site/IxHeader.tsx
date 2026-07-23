@@ -28,6 +28,7 @@ export function IxHeader({ lang, nav, platforms }: Props) {
   const links = [
     { href: '/#about', label: nav.about },
     { href: '/#culture', label: nav.culture },
+    { href: '/#gallery', label: nav.gallery || (lang === 'sq' ? 'Galeria' : 'Gallery') },
     { href: '/#news', label: nav.news },
     { href: '/#contact', label: nav.contact },
   ]
@@ -61,6 +62,7 @@ export function IxHeader({ lang, nav, platforms }: Props) {
             </div>
           </div>
           <a href="/#culture">{nav.culture}</a>
+          <a href="/#gallery">{nav.gallery || (lang === 'sq' ? 'Galeria' : 'Gallery')}</a>
           <a href="/#news">{nav.news}</a>
           <a href="/#contact">{nav.contact}</a>
         </nav>

@@ -9,22 +9,29 @@ export const GalleryBlock: Block = {
   },
   fields: [
     {
+      name: 'heading',
+      type: 'text',
+      admin: {
+        description: 'Optional section title above the gallery.',
+      },
+    },
+    {
       name: 'style',
       type: 'select',
-      defaultValue: 'slideshow',
+      defaultValue: 'grid',
       options: [
-        { label: 'Slideshow', value: 'slideshow' },
-        { label: 'Grid', value: 'grid' },
+        { label: 'Grid (thumbnails → lightbox)', value: 'grid' },
+        { label: 'Slideshow (stacked, click to enlarge)', value: 'slideshow' },
       ],
       required: true,
     },
     {
       name: 'autoplaySeconds',
       type: 'number',
-      defaultValue: 5,
+      defaultValue: 0,
       admin: {
         condition: (_, siblingData) => siblingData?.style === 'slideshow',
-        description: 'Seconds between slides. Set to 0 to disable autoplay.',
+        description: 'Reserved for future autoplay. Leave 0.',
       },
     },
     {
@@ -32,6 +39,11 @@ export const GalleryBlock: Block = {
       type: 'array',
       required: true,
       minRows: 1,
+      labels: { singular: 'Photo', plural: 'Photos' },
+      admin: {
+        description:
+          'Drag to reorder. Upload via Media — Payload generates thumbnails; the site shows medium thumbs and opens a larger size on click.',
+      },
       fields: [
         {
           name: 'image',
@@ -47,7 +59,7 @@ export const GalleryBlock: Block = {
           name: 'link',
           type: 'text',
           admin: {
-            description: 'Optional URL when the slide is clicked.',
+            description: 'Optional external URL (opens instead of lightbox when set).',
           },
         },
       ],

@@ -385,6 +385,42 @@ export const MainSite: GlobalConfig = {
           ],
         },
         {
+          label: 'Gallery',
+          fields: [
+            enSq('galleryEyebrow', 'Gallery eyebrow', 'text', {
+              en: 'Gallery',
+              sq: 'Galeria',
+            }),
+            enSq('galleryHeading', 'Gallery heading', 'text', {
+              en: 'Moments from our platforms.',
+              sq: 'Momente nga platformat tona.',
+            }),
+            enSq('galleryIntro', 'Gallery intro', 'textarea', {
+              en: 'A look at the industries meeting on IX floors across Albania.',
+              sq: 'Një vështrim mbi industritë që takohen në platformat IX në Shqipëri.',
+            }),
+            {
+              name: 'galleryItems',
+              type: 'array',
+              labels: { singular: 'Photo', plural: 'Photos' },
+              admin: {
+                description:
+                  'Drag to reorder. Upload compressed photos to Media first — grid uses medium thumbs; click opens a larger size.',
+              },
+              fields: [
+                {
+                  name: 'image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  required: true,
+                },
+                { name: 'captionEn', type: 'text', label: 'Caption (EN)' },
+                { name: 'captionSq', type: 'text', label: 'Caption (SQ)' },
+              ],
+            },
+          ],
+        },
+        {
           label: 'CTA & contact',
           fields: [
             enSq('ctaEyebrow', 'CTA eyebrow', 'text', {

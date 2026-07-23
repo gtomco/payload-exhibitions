@@ -30,6 +30,7 @@ export type IxMainContent = {
     culture: string
     news: string
     contact: string
+    gallery?: string
   }
   heroEyebrow: string
   heroTitle: string
@@ -78,6 +79,17 @@ export type IxMainContent = {
     href?: string
   }>
   videos: Array<{ title: string; youtubeUrl: string; coverUrl?: string | null }>
+  galleryEyebrow: string
+  galleryHeading: string
+  galleryIntro: string
+  galleryItems: Array<{
+    thumbUrl: string
+    fullUrl: string
+    alt: string
+    caption?: string
+    width?: number
+    height?: number
+  }>
   ctaEyebrow: string
   ctaTitle: string
   ctaButton: string
@@ -198,6 +210,7 @@ export function defaultIxContent(lang: PublicLang): IxMainContent {
       culture: sq ? 'Kultura jonë' : 'Our Culture',
       news: sq ? 'Lajme & Media' : 'News & Media',
       contact: sq ? 'Na kontaktoni' : 'Get In Touch',
+      gallery: sq ? 'Galeria' : 'Gallery',
     },
     heroEyebrow: sq ? 'I - EXHIBITIONS · TIRANË, SHQIPËRI' : 'I - EXHIBITIONS · TIRANA, ALBANIA',
     heroTitle: sq
@@ -375,6 +388,12 @@ export function defaultIxContent(lang: PublicLang): IxMainContent {
         youtubeUrl: 'https://www.youtube.com/watch?v=SDqORu5_Klk',
       },
     ],
+    galleryEyebrow: sq ? 'Galeria' : 'Gallery',
+    galleryHeading: sq ? 'Momente nga platformat tona.' : 'Moments from our platforms.',
+    galleryIntro: sq
+      ? 'Një vështrim mbi industritë që takohen në platformat IX në Shqipëri.'
+      : 'A look at the industries meeting on IX floors across Albania.',
+    galleryItems: [],
     ctaEyebrow: sq ? 'Le të ndërtojmë diçka' : "Let's build something",
     ctaTitle: sq
       ? 'Krijoni platformën e ardhshme për industrinë tuaj.'

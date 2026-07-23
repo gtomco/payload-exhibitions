@@ -796,16 +796,23 @@ export interface MediaBlock {
  * via the `definition` "GalleryBlock".
  */
 export interface GalleryBlock {
-  style: 'slideshow' | 'grid';
   /**
-   * Seconds between slides. Set to 0 to disable autoplay.
+   * Optional section title above the gallery.
+   */
+  heading?: string | null;
+  style: 'grid' | 'slideshow';
+  /**
+   * Reserved for future autoplay. Leave 0.
    */
   autoplaySeconds?: number | null;
+  /**
+   * Drag to reorder. Upload via Media — Payload generates thumbnails; the site shows medium thumbs and opens a larger size on click.
+   */
   slides: {
     image: number | Media;
     caption?: string | null;
     /**
-     * Optional URL when the slide is clicked.
+     * Optional external URL (opens instead of lightbox when set).
      */
     link?: string | null;
     id?: string | null;
@@ -1592,6 +1599,7 @@ export interface MediaBlockSelect<T extends boolean = true> {
  * via the `definition` "GalleryBlock_select".
  */
 export interface GalleryBlockSelect<T extends boolean = true> {
+  heading?: T;
   style?: T;
   autoplaySeconds?: T;
   slides?:
@@ -2361,6 +2369,23 @@ export interface MainSite {
         id?: string | null;
       }[]
     | null;
+  galleryEyebrowEn?: string | null;
+  galleryEyebrowSq?: string | null;
+  galleryHeadingEn?: string | null;
+  galleryHeadingSq?: string | null;
+  galleryIntroEn?: string | null;
+  galleryIntroSq?: string | null;
+  /**
+   * Drag to reorder. Upload compressed photos to Media first — grid uses medium thumbs; click opens a larger size.
+   */
+  galleryItems?:
+    | {
+        image: number | Media;
+        captionEn?: string | null;
+        captionSq?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   ctaEyebrowEn?: string | null;
   ctaEyebrowSq?: string | null;
   ctaTitleEn?: string | null;
@@ -2695,6 +2720,20 @@ export interface MainSiteSelect<T extends boolean = true> {
         titleSq?: T;
         youtubeUrl?: T;
         cover?: T;
+        id?: T;
+      };
+  galleryEyebrowEn?: T;
+  galleryEyebrowSq?: T;
+  galleryHeadingEn?: T;
+  galleryHeadingSq?: T;
+  galleryIntroEn?: T;
+  galleryIntroSq?: T;
+  galleryItems?:
+    | T
+    | {
+        image?: T;
+        captionEn?: T;
+        captionSq?: T;
         id?: T;
       };
   ctaEyebrowEn?: T;

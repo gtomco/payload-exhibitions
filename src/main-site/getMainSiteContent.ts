@@ -13,10 +13,19 @@ import {
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 import { getRootDomain, micrositeOrigin } from '@/utilities/publicUrls'
 
-function mediaUrl(value: unknown): string | null {
+function mediaUrl(value: unknown, preferred?: Array<'medium' | 'large' | 'xlarge' | 'small'>): string | null {
   if (!value || typeof value !== 'object') return null
-  const url = (value as { url?: string | null }).url
-  return url ? getMediaUrl(url) : null
+  const media = value as {
+    url?: string | null
+    sizes?: Record<string, { url?: string | null } | null>
+  }
+  if (preferred) {
+    for (const name of preferred) {
+      const sized = media.sizes?.[name]?.url
+      if (sized) return getMediaUrl(sized)
+    }
+  }
+  return media.url ? getMediaUrl(media.url) : null
 }
 
 function pick(
@@ -237,6 +246,37 @@ export const getMainSiteContent = cache(async (lang: PublicLang): Promise<IxMain
             ...v,
             coverUrl: youtubeThumb(v.youtubeUrl),
           })),
+      galleryEyebrow: pick(sq, doc.galleryEyebrowEn, doc.galleryEyebrowSq, fallback.galleryEyebrow),
+      galleryHeading: pick(sq, doc.galleryHeadingEn, doc.galleryHeadingSq, fallback.galleryHeading),
+      galleryIntro: pick(sq, doc.galleryIntroEn, doc.galleryIntroSq, fallback.galleryIntro),
+      galleryItems: (doc.galleryItems || [])
+        .map((g, index) => {
+          const image = g.image
+          if (!image || typeof image !== 'object') return null
+          const thumbUrl = mediaUrl(image, ['medium', 'small', 'large'])
+          const fullUrl = mediaUrl(image, ['xlarge', 'large', 'medium'])
+          if (!thumbUrl || !fullUrl) return null
+          const caption = pick(sq, g.captionEn, g.captionSq, '')
+          const alt =
+            (typeof image === 'object' && 'alt' in image && image.alt) ||
+            caption ||
+            `Gallery ${index + 1}`
+          return {
+            thumbUrl,
+            fullUrl,
+            alt: String(alt),
+            caption: caption || undefined,
+            width:
+              typeof image === 'object' && image.sizes?.medium?.width
+                ? image.sizes.medium.width
+                : image.width || undefined,
+            height:
+              typeof image === 'object' && image.sizes?.medium?.height
+                ? image.sizes.medium.height
+                : image.height || undefined,
+          }
+        })
+        .filter(Boolean) as IxMainContent['galleryItems'],
       ctaEyebrow: pick(sq, doc.ctaEyebrowEn, doc.ctaEyebrowSq, fallback.ctaEyebrow),
       ctaTitle: pick(sq, doc.ctaTitleEn, doc.ctaTitleSq, fallback.ctaTitle),
       ctaButton: pick(sq, doc.ctaButtonEn, doc.ctaButtonSq, fallback.ctaButton),
