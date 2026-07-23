@@ -5,6 +5,8 @@ import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
+import { micrositeField } from '@/fields/microsite'
+import { micrositeAdminFilter, micrositeScopedHooks } from '@/microsite/collectionExtensions'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
@@ -27,9 +29,13 @@ export const plugins: Plugin[] = [
   redirectsPlugin({
     collections: ['pages', 'posts', 'events'],
     overrides: {
+      admin: {
+        ...micrositeAdminFilter,
+        defaultColumns: ['from', 'to', 'microsite', 'updatedAt'],
+      },
       // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
       fields: ({ defaultFields }) => {
-        return defaultFields.map((field) => {
+        const fields = defaultFields.map((field) => {
           if ('name' in field && field.name === 'from') {
             return {
               ...field,
@@ -40,8 +46,10 @@ export const plugins: Plugin[] = [
           }
           return field
         })
+        return [...fields, micrositeField()]
       },
       hooks: {
+        ...micrositeScopedHooks,
         afterChange: [revalidateRedirects],
       },
     },
@@ -84,8 +92,22 @@ export const plugins: Plugin[] = [
     collections: ['posts', 'events'],
     beforeSync: beforeSyncWithSearch,
     searchOverrides: {
+      admin: {
+        ...micrositeAdminFilter,
+      },
       fields: ({ defaultFields }) => {
-        return [...defaultFields, ...searchFields]
+        return [
+          ...defaultFields,
+          ...searchFields,
+          {
+            name: 'microsite',
+            type: 'number',
+            index: true,
+            admin: {
+              readOnly: true,
+            },
+          },
+        ]
       },
     },
   }),

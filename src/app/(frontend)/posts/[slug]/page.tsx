@@ -9,31 +9,35 @@ import React, { cache } from 'react'
 import RichText from '@/components/RichText'
 
 import type { Post } from '@/payload-types'
+import type { Where } from 'payload'
 
 import { PostHero } from '@/heros/PostHero'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMicrositeMeta } from '@/utilities/generateMicrositeMeta'
+import { getRequestMicrosite, getRequestMicrositeContext } from '@/utilities/getRequestMicrosite'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { getCachedGlobal } from '@/utilities/getGlobals'
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const posts = await payload.find({
-    collection: 'posts',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      slug: true,
-    },
-  })
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const posts = await payload.find({
+      collection: 'posts',
+      draft: false,
+      limit: 1000,
+      overrideAccess: false,
+      pagination: false,
+      select: {
+        slug: true,
+      },
+    })
 
-  const params = posts.docs.map(({ slug }) => {
-    return { slug }
-  })
-
-  return params
+    return posts.docs.map(({ slug }) => {
+      return { slug }
+    })
+  } catch {
+    return []
+  }
 }
 
 type Args = {
@@ -87,13 +91,20 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const decodedSlug = decodeURIComponent(slug)
   const post = await queryPostBySlug({ slug: decodedSlug })
 
-  return generateMeta({ doc: post })
+  return generateMicrositeMeta({
+    doc: post,
+    path: `/posts/${decodedSlug}`,
+    siteName: (await getRequestMicrositeContext())?.microsite.title,
+  })
 }
 
 const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
   const { isEnabled: draft } = await draftMode()
-
+  const resolved = await getRequestMicrosite()
   const payload = await getPayload({ config: configPromise })
+
+  const filters: Where[] = [{ slug: { equals: slug } }]
+  if (resolved) filters.push({ microsite: { equals: resolved.microsite.id } })
 
   const result = await payload.find({
     collection: 'posts',
@@ -101,11 +112,7 @@ const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
     limit: 1,
     overrideAccess: draft,
     pagination: false,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
+    where: { and: filters },
   })
 
   return result.docs?.[0] || null

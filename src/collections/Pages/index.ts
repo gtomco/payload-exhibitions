@@ -3,12 +3,18 @@ import type { CollectionConfig } from 'payload'
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
 import { Archive } from '../../blocks/ArchiveBlock/config'
+import { Banner } from '../../blocks/Banner/config'
 import { CallToAction } from '../../blocks/CallToAction/config'
 import { Content } from '../../blocks/Content/config'
 import { FormBlock } from '../../blocks/Form/config'
+import { GalleryBlock } from '../../blocks/GalleryBlock/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { hero } from '@/heros/config'
 import { slugField } from 'payload'
+import { micrositeField } from '../../fields/microsite'
+import { micrositeBaseFilter } from '../../microsite/baseFilter'
+import { defaultMicrositeFromContext } from '../../microsite/hooks/defaultMicrositeFromContext'
+import { setMicrositeContext } from '../../microsite/hooks/setMicrositeContext'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
@@ -37,7 +43,8 @@ export const Pages: CollectionConfig<'pages'> = {
     slug: true,
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    baseFilter: micrositeBaseFilter,
+    defaultColumns: ['title', 'slug', 'microsite', '_status', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -72,7 +79,7 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, Content, MediaBlock, Archive, FormBlock],
+              blocks: [CallToAction, Content, MediaBlock, GalleryBlock, Banner, Archive, FormBlock],
               required: true,
               admin: {
                 initCollapsed: true,
@@ -117,9 +124,12 @@ export const Pages: CollectionConfig<'pages'> = {
         position: 'sidebar',
       },
     },
+    micrositeField(),
     slugField(),
   ],
   hooks: {
+    beforeOperation: [setMicrositeContext],
+    beforeValidate: [defaultMicrositeFromContext],
     afterChange: [revalidatePage],
     beforeChange: [populatePublishedAt],
     afterDelete: [revalidateDelete],

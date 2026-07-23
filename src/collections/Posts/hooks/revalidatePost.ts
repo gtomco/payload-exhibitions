@@ -4,6 +4,13 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Post } from '../../../payload-types'
 
+function micrositeTag(doc: Post): string | null {
+  const microsite = doc.microsite
+  if (!microsite) return null
+  const id = typeof microsite === 'object' ? microsite.id : microsite
+  return id ? `microsite:${id}:posts` : null
+}
+
 export const revalidatePost: CollectionAfterChangeHook<Post> = ({
   doc,
   previousDoc,
@@ -11,22 +18,24 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
 }) => {
   if (!context.disableRevalidate) {
     if (doc._status === 'published') {
-      const path = `/posts/${doc.slug}`
+      payload.logger.info(`Revalidating post at /posts/${doc.slug} and /news/${doc.slug}`)
 
-      payload.logger.info(`Revalidating post at path: ${path}`)
-
-      revalidatePath(path)
+      revalidatePath(`/posts/${doc.slug}`)
+      revalidatePath(`/news/${doc.slug}`)
+      revalidatePath('/news')
+      revalidatePath('/')
       revalidateTag('posts-sitemap', 'max')
+      const tag = micrositeTag(doc)
+      if (tag) revalidateTag(tag, 'max')
     }
 
-    // If the post was previously published, we need to revalidate the old path
     if (previousDoc._status === 'published' && doc._status !== 'published') {
-      const oldPath = `/posts/${previousDoc.slug}`
-
-      payload.logger.info(`Revalidating old post at path: ${oldPath}`)
-
-      revalidatePath(oldPath)
+      revalidatePath(`/posts/${previousDoc.slug}`)
+      revalidatePath(`/news/${previousDoc.slug}`)
+      revalidatePath('/news')
       revalidateTag('posts-sitemap', 'max')
+      const tag = micrositeTag(previousDoc)
+      if (tag) revalidateTag(tag, 'max')
     }
   }
   return doc
@@ -34,10 +43,14 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
 
 export const revalidateDelete: CollectionAfterDeleteHook<Post> = ({ doc, req: { context } }) => {
   if (!context.disableRevalidate) {
-    const path = `/posts/${doc?.slug}`
-
-    revalidatePath(path)
+    revalidatePath(`/posts/${doc?.slug}`)
+    revalidatePath(`/news/${doc?.slug}`)
+    revalidatePath('/news')
     revalidateTag('posts-sitemap', 'max')
+    if (doc) {
+      const tag = micrositeTag(doc)
+      if (tag) revalidateTag(tag, 'max')
+    }
   }
 
   return doc

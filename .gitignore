@@ -6,6 +6,7 @@ node_modules
 .next
 next-env.d.ts
 .vercel
+*.tsbuildinfo
 
 # Payload default media upload directory
 public/media/
@@ -13,6 +14,15 @@ public/media/
 public/robots.txt
 public/sitemap*.xml
 
+# Design / briefing assets kept locally for agent context (not app runtime)
+docs/main_website/
+
+# Leftover static dumps (canonical assets live under public/ecge/ and public/ix/)
+public/ecge-static.css
+public/ecge-floor-preview.png
+public/ecge-logo.png
+public/ix/colors-ref.png
+public/ix/logo-full.png
 
 # Playwright
 node_modules/

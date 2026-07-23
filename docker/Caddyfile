@@ -1,0 +1,15 @@
+# Local/dev-friendly: HTTP only (no ACME). Production: set PUBLIC_PROTOCOL=https
+# and remove `auto_https off` + use 443.
+
+{
+	auto_https off
+}
+
+http://{$ROOT_DOMAIN}, http://www.{$ROOT_DOMAIN}, http://*.{$ROOT_DOMAIN} {
+	reverse_proxy app:3000 {
+		header_up Host {host}
+		header_up X-Forwarded-Host {host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Real-IP {remote_host}
+	}
+}

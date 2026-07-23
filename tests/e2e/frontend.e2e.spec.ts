@@ -8,10 +8,10 @@ test.describe('Frontend', () => {
     page = await context.newPage()
   })
 
-  test('can load homepage', async ({ page }) => {
+  test('can load IX main homepage', async ({ page }) => {
     await page.goto('http://localhost:3000')
-    await expect(page).toHaveTitle(/Payload Website Template/)
+    await expect(page).toHaveTitle(/IX/i)
     const heading = page.locator('h1').first()
-    await expect(heading).toHaveText('Payload Website Template')
+    await expect(heading).toContainText(/Today, we are|Sot, ne jemi/i)
   })
 })

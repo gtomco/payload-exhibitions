@@ -1,31 +1,87 @@
-version: '3'
+# Production-oriented stack for IX apex + microsite subdomains.
+#
+#   # Empty local DB (bundled Postgres on :5433):
+#   docker compose --env-file .env.docker --profile with-db up --build
+#
+#   # Your existing Payload DB (set DATABASE_URL + PAYLOAD_SECRET):
+#   docker compose --env-file .env --env-file .env.docker up --build app caddy
+#
+# App: http://localhost:3002   Caddy: http://lvh.me:3080
+
+name: exhibition-payload
 
 services:
-  payload:
-    image: node:18-alpine
-    ports:
-      - '3000:3000'
+  postgres:
+    profiles: ['with-db']
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-payload}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-payload}
+      POSTGRES_DB: ${POSTGRES_DB:-payload}
     volumes:
-      - .:/home/node/app
-      - node_modules:/home/node/app/node_modules
-    working_dir: /home/node/app/
-    command: sh -c "yarn install && yarn dev"
-    depends_on:
-      - mongo
-    env_file:
-      - .env
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - '${POSTGRES_HOST_PORT:-5433}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-payload} -d ${POSTGRES_DB:-payload}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
-  mongo:
-    image: mongo:latest
-    ports:
-      - '27017:27017'
-    command:
-      - --storageEngine=wiredTiger
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Build-time only — must not reach a live DB during image build
+        DATABASE_URL: postgresql://payload:payload@127.0.0.1:5432/payload
+        PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change-me-in-production-please-32chars}
+        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-http://localhost:3002}
+        ROOT_DOMAIN: ${ROOT_DOMAIN:-lvh.me}
+        PUBLIC_PROTOCOL: ${PUBLIC_PROTOCOL:-http}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+    environment:
+      NODE_ENV: production
+      # Prefer DATABASE_URL from env (.env / .env.docker). Fallback = bundled postgres.
+      DATABASE_URL: ${DATABASE_URL:-postgresql://payload:payload@postgres:5432/payload}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change-me-in-production-please-32chars}
+      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-http://localhost:3002}
+      ROOT_DOMAIN: ${ROOT_DOMAIN:-lvh.me}
+      PUBLIC_PROTOCOL: ${PUBLIC_PROTOCOL:-http}
+      TRUST_PROXY: ${TRUST_PROXY:-true}
+      ENABLE_PATH_MICROSITES: ${ENABLE_PATH_MICROSITES:-true}
+      CRM_API_URL: ${CRM_API_URL:-}
+      CRM_ASSETS_URL: ${CRM_ASSETS_URL:-}
+      CRON_SECRET: ${CRON_SECRET:-}
+      PREVIEW_SECRET: ${PREVIEW_SECRET:-}
     volumes:
-      - data:/data/db
-    logging:
-      driver: none
+      - media:/app/public/media
+      - media_alt:/app/media
+    ports:
+      - '${APP_HOST_PORT:-3002}:3000'
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      ROOT_DOMAIN: ${ROOT_DOMAIN:-lvh.me}
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+      - '${CADDY_HTTP_PORT:-3080}:80'
 
 volumes:
-  data:
-  node_modules:
+  pgdata:
+  media:
+  media_alt:
+  caddy_data:
+  caddy_config:

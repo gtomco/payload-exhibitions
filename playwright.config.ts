@@ -1,41 +1,67 @@
 import { defineConfig, devices } from '@playwright/test'
-
-/**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
 import 'dotenv/config'
 
-/**
- * See https://playwright.dev/docs/test-configuration.
- */
+const PAYLOAD_URL = process.env.PAYLOAD_URL || 'http://localhost:3001'
+const MICROSITE_URL = process.env.MICROSITE_URL || 'http://localhost:8082'
+
 export default defineConfig({
   testDir: './tests/e2e',
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  testMatch: '**/*.e2e.spec.ts',
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  workers: 1,
+  timeout: 60000,
+  reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://localhost:3000',
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
   },
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
+      name: 'payload-api',
+      testMatch: [
+        '**/api-resources.crud.e2e.spec.ts',
+        '**/microsite-context.e2e.spec.ts',
+        '**/microsite-crm.e2e.spec.ts',
+        '**/admin-microsite-context.e2e.spec.ts',
+      ],
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: PAYLOAD_URL,
+      },
+    },
+    {
+      name: 'payload-admin',
+      testMatch: ['**/admin-resources.crud.e2e.spec.ts', '**/admin-microsite-context.e2e.spec.ts'],
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: PAYLOAD_URL,
+      },
+    },
+    {
+      name: 'microsite-frontend',
+      testMatch: '**/microsite-frontend.e2e.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: MICROSITE_URL,
+      },
     },
   ],
-  webServer: {
-    command: 'pnpm dev',
-    reuseExistingServer: true,
-    url: 'http://localhost:3000',
-  },
+  webServer: [
+    {
+      command: 'npm run dev:3001',
+      url: `${PAYLOAD_URL}/admin`,
+      reuseExistingServer: true,
+      timeout: 120000,
+      env: {
+        NEXT_PUBLIC_SERVER_URL: PAYLOAD_URL,
+      },
+    },
+    {
+      command: 'npm run dev --prefix ../ecge-fair/web',
+      url: MICROSITE_URL,
+      reuseExistingServer: true,
+      timeout: 120000,
+    },
+  ],
 })

@@ -9,31 +9,36 @@ import React, { cache } from 'react'
 import RichText from '@/components/RichText'
 
 import type { Event } from '@/payload-types'
+import type { Where } from 'payload'
 
 import { EventHero } from '@/heros/EventHero'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMicrositeMeta } from '@/utilities/generateMicrositeMeta'
+import { getRequestMicrosite, getRequestMicrositeContext } from '@/utilities/getRequestMicrosite'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { getCachedGlobal } from '@/utilities/getGlobals'
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const events = await payload.find({
-    collection: 'events',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      slug: true,
-    },
-  })
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const events = await payload.find({
+      collection: 'events',
+      draft: false,
+      limit: 1000,
+      overrideAccess: false,
+      pagination: false,
+      select: {
+        slug: true,
+      },
+    })
 
-  const params = events.docs.map(({ slug }) => {
-    return { slug }
-  })
-
-  return params
+    return events.docs.map(({ slug }) => {
+      return { slug }
+    })
+  } catch {
+    // Docker/CI builds often have no DB — render on demand
+    return []
+  }
 }
 
 type Args = {
@@ -83,14 +88,22 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const { slug = '' } = await paramsPromise
   const decodedSlug = decodeURIComponent(slug)
   const event = await queryEventBySlug({ slug: decodedSlug })
+  const context = await getRequestMicrositeContext()
 
-  return generateMeta({ doc: event })
+  return generateMicrositeMeta({
+    doc: event,
+    path: `/events/${decodedSlug}`,
+    siteName: context?.microsite.title,
+  })
 }
 
 const queryEventBySlug = cache(async ({ slug }: { slug: string }) => {
   const { isEnabled: draft } = await draftMode()
-
+  const resolved = await getRequestMicrosite()
   const payload = await getPayload({ config: configPromise })
+
+  const filters: Where[] = [{ slug: { equals: slug } }]
+  if (resolved) filters.push({ microsite: { equals: resolved.microsite.id } })
 
   const result = await payload.find({
     collection: 'events',
@@ -98,11 +111,7 @@ const queryEventBySlug = cache(async ({ slug }: { slug: string }) => {
     limit: 1,
     overrideAccess: draft,
     pagination: false,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
+    where: { and: filters },
   })
 
   return result.docs?.[0] || null

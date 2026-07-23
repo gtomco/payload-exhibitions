@@ -4,6 +4,13 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Event } from '../../../payload-types'
 
+function micrositeTag(doc: Event): string | null {
+  const microsite = doc.microsite
+  if (!microsite) return null
+  const id = typeof microsite === 'object' ? microsite.id : microsite
+  return id ? `microsite:${id}:events` : null
+}
+
 export const revalidateEvent: CollectionAfterChangeHook<Event> = ({
   doc,
   previousDoc,
@@ -11,21 +18,22 @@ export const revalidateEvent: CollectionAfterChangeHook<Event> = ({
 }) => {
   if (!context.disableRevalidate) {
     if (doc._status === 'published') {
-      const path = `/events/${doc.slug}`
+      payload.logger.info(`Revalidating event at /events/${doc.slug}`)
 
-      payload.logger.info(`Revalidating event at path: ${path}`)
-
-      revalidatePath(path)
-      revalidateTag('events-sitemap')
+      revalidatePath(`/events/${doc.slug}`)
+      revalidatePath('/program')
+      revalidatePath('/events')
+      revalidateTag('events-sitemap', 'max')
+      const tag = micrositeTag(doc)
+      if (tag) revalidateTag(tag, 'max')
     }
 
     if (previousDoc._status === 'published' && doc._status !== 'published') {
-      const oldPath = `/events/${previousDoc.slug}`
-
-      payload.logger.info(`Revalidating old event at path: ${oldPath}`)
-
-      revalidatePath(oldPath)
-      revalidateTag('events-sitemap')
+      revalidatePath(`/events/${previousDoc.slug}`)
+      revalidatePath('/program')
+      revalidateTag('events-sitemap', 'max')
+      const tag = micrositeTag(previousDoc)
+      if (tag) revalidateTag(tag, 'max')
     }
   }
   return doc
@@ -33,10 +41,13 @@ export const revalidateEvent: CollectionAfterChangeHook<Event> = ({
 
 export const revalidateDelete: CollectionAfterDeleteHook<Event> = ({ doc, req: { context } }) => {
   if (!context.disableRevalidate) {
-    const path = `/events/${doc?.slug}`
-
-    revalidatePath(path)
-    revalidateTag('events-sitemap')
+    revalidatePath(`/events/${doc?.slug}`)
+    revalidatePath('/program')
+    revalidateTag('events-sitemap', 'max')
+    if (doc) {
+      const tag = micrositeTag(doc)
+      if (tag) revalidateTag(tag, 'max')
+    }
   }
 
   return doc

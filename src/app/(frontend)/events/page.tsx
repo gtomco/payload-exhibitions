@@ -3,36 +3,30 @@ import type { Metadata } from 'next/types'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import React from 'react'
 import PageClient from './page.client'
+import { generateMicrositeMeta } from '@/utilities/generateMicrositeMeta'
+import {
+  getRequestLang,
+  getRequestMicrositeContext,
+} from '@/utilities/getRequestMicrosite'
+import { queryMicrositeEvents } from '@/utilities/queryMicrositeContent'
 
-export const dynamic = 'force-static'
-export const revalidate = 600
+export const dynamic = 'force-dynamic'
 
 export default async function Page() {
-  const payload = await getPayload({ config: configPromise })
-
-  const events = await payload.find({
-    collection: 'events',
-    depth: 1,
-    limit: 12,
-    overrideAccess: false,
-    select: {
-      title: true,
-      slug: true,
-      categories: true,
-      meta: true,
-    },
-  })
+  const events = await queryMicrositeEvents({ limit: 12 })
+  const lang = await getRequestLang()
 
   return (
     <div className="pt-24 pb-24">
       <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none">
-          <h1>Events</h1>
+          <h1>{lang === 'sq' ? 'Evente' : 'Events'}</h1>
+          <p>
+            <a href="/program">{lang === 'sq' ? 'Shiko axhendën' : 'View programme'}</a>
+          </p>
         </div>
       </div>
 
@@ -56,8 +50,12 @@ export default async function Page() {
   )
 }
 
-export function generateMetadata(): Metadata {
-  return {
-    title: `Events`,
-  }
+export async function generateMetadata(): Promise<Metadata> {
+  const context = await getRequestMicrositeContext()
+  const lang = await getRequestLang()
+  return generateMicrositeMeta({
+    title: lang === 'sq' ? 'Evente' : 'Events',
+    path: '/events',
+    siteName: context?.microsite.title,
+  })
 }

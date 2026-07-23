@@ -3,36 +3,30 @@ import type { Metadata } from 'next/types'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import React from 'react'
 import PageClient from './page.client'
+import { generateMicrositeMeta } from '@/utilities/generateMicrositeMeta'
+import {
+  getRequestLang,
+  getRequestMicrositeContext,
+} from '@/utilities/getRequestMicrosite'
+import { queryMicrositePosts } from '@/utilities/queryMicrositeContent'
 
-export const dynamic = 'force-static'
-export const revalidate = 600
+export const dynamic = 'force-dynamic'
 
 export default async function Page() {
-  const payload = await getPayload({ config: configPromise })
-
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 12,
-    overrideAccess: false,
-    select: {
-      title: true,
-      slug: true,
-      categories: true,
-      meta: true,
-    },
-  })
+  const posts = await queryMicrositePosts({ limit: 12 })
+  const lang = await getRequestLang()
 
   return (
     <div className="pt-24 pb-24">
       <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none">
-          <h1>Posts</h1>
+          <h1>{lang === 'sq' ? 'Postime' : 'Posts'}</h1>
+          <p>
+            <a href="/news">{lang === 'sq' ? 'Shiko lajmet' : 'View news'}</a>
+          </p>
         </div>
       </div>
 
@@ -56,8 +50,12 @@ export default async function Page() {
   )
 }
 
-export function generateMetadata(): Metadata {
-  return {
-    title: `Payload Website Template Posts`,
-  }
+export async function generateMetadata(): Promise<Metadata> {
+  const context = await getRequestMicrositeContext()
+  const lang = await getRequestLang()
+  return generateMicrositeMeta({
+    title: lang === 'sq' ? 'Postime' : 'Posts',
+    path: '/posts',
+    siteName: context?.microsite.title,
+  })
 }

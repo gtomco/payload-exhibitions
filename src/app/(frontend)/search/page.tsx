@@ -4,18 +4,41 @@ import { CollectionArchive } from '@/components/CollectionArchive'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
-import { Search } from '@/search/Component'
-import PageClient from './page.client'
 import { CardPostData } from '@/components/Card'
+import { SearchIsland } from '@/microsite/SearchIsland'
+import { generateMicrositeMeta } from '@/utilities/generateMicrositeMeta'
+import {
+  getRequestLang,
+  getRequestMicrosite,
+  getRequestMicrositeContext,
+} from '@/utilities/getRequestMicrosite'
+
+export const dynamic = 'force-dynamic'
 
 type Args = {
   searchParams: Promise<{
-    q: string
+    q?: string
   }>
 }
+
 export default async function Page({ searchParams: searchParamsPromise }: Args) {
   const { q: query } = await searchParamsPromise
   const payload = await getPayload({ config: configPromise })
+  const resolved = await getRequestMicrosite()
+  const lang = await getRequestLang()
+
+  const filters = []
+  if (resolved) filters.push({ microsite: { equals: resolved.microsite.id } })
+  if (query) {
+    filters.push({
+      or: [
+        { title: { like: query } },
+        { 'meta.description': { like: query } },
+        { 'meta.title': { like: query } },
+        { slug: { like: query } },
+      ],
+    })
+  }
 
   const posts = await payload.find({
     collection: 'search',
@@ -27,62 +50,38 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       categories: true,
       meta: true,
     },
-    // pagination: false reduces overhead if you don't need totalDocs
     pagination: false,
-    ...(query
-      ? {
-          where: {
-            or: [
-              {
-                title: {
-                  like: query,
-                },
-              },
-              {
-                'meta.description': {
-                  like: query,
-                },
-              },
-              {
-                'meta.title': {
-                  like: query,
-                },
-              },
-              {
-                slug: {
-                  like: query,
-                },
-              },
-            ],
-          },
-        }
-      : {}),
+    ...(filters.length ? { where: { and: filters } } : {}),
   })
 
   return (
-    <div className="pt-24 pb-24">
-      <PageClient />
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none text-center">
-          <h1 className="mb-8 lg:mb-16">Search</h1>
-
-          <div className="max-w-[50rem] mx-auto">
-            <Search />
-          </div>
-        </div>
+    <div className="container py-16">
+      <h1 className="mb-8 text-center text-4xl font-bold">
+        {lang === 'sq' ? 'Kërko' : 'Search'}
+      </h1>
+      <div className="mx-auto mb-12 max-w-[50rem]">
+        <SearchIsland
+          initialQuery={query || ''}
+          placeholder={lang === 'sq' ? 'Kërko faqe dhe lajme…' : 'Search pages and news…'}
+        />
       </div>
-
-      {posts.totalDocs > 0 ? (
+      {posts.docs.length > 0 ? (
         <CollectionArchive docs={posts.docs as CardPostData[]} />
       ) : (
-        <div className="container">No results found.</div>
+        <p className="text-center text-muted-foreground">
+          {lang === 'sq' ? 'Nuk u gjetën rezultate.' : 'No results found.'}
+        </p>
       )}
     </div>
   )
 }
 
-export function generateMetadata(): Metadata {
-  return {
-    title: `Payload Website Template Search`,
-  }
+export async function generateMetadata(): Promise<Metadata> {
+  const context = await getRequestMicrositeContext()
+  const lang = await getRequestLang()
+  return generateMicrositeMeta({
+    title: lang === 'sq' ? 'Kërko' : 'Search',
+    path: '/search',
+    siteName: context?.microsite.title,
+  })
 }

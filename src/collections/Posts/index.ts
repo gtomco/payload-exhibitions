@@ -26,6 +26,11 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from 'payload'
+import { micrositeField } from '../../fields/microsite'
+import { micrositeBaseFilter } from '../../microsite/baseFilter'
+import { defaultMicrositeFromContext } from '../../microsite/hooks/defaultMicrositeFromContext'
+import { setMicrositeContext } from '../../microsite/hooks/setMicrositeContext'
+import { micrositeRelationshipFilter } from '../../microsite/relationshipFilter'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
@@ -48,7 +53,8 @@ export const Posts: CollectionConfig<'posts'> = {
     },
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    baseFilter: micrositeBaseFilter,
+    defaultColumns: ['title', 'slug', 'microsite', '_status', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -110,12 +116,14 @@ export const Posts: CollectionConfig<'posts'> = {
               admin: {
                 position: 'sidebar',
               },
-              filterOptions: ({ id }) => {
-                return {
-                  id: {
-                    not_in: [id],
-                  },
-                }
+              filterOptions: async (args) => {
+                const scoped = await micrositeRelationshipFilter(args)
+                const excludeSelf = args.id
+                  ? { id: { not_in: [args.id] } }
+                  : undefined
+                if (scoped === true) return excludeSelf || true
+                if (!excludeSelf) return scoped
+                return { and: [scoped, excludeSelf] }
               },
               hasMany: true,
               relationTo: 'posts',
@@ -214,9 +222,12 @@ export const Posts: CollectionConfig<'posts'> = {
         },
       ],
     },
+    micrositeField(),
     slugField(),
   ],
   hooks: {
+    beforeOperation: [setMicrositeContext],
+    beforeValidate: [defaultMicrositeFromContext],
     afterChange: [revalidatePost],
     afterRead: [populateAuthors],
     afterDelete: [revalidateDelete],

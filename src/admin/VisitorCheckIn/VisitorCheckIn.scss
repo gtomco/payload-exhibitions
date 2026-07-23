@@ -1,0 +1,77 @@
+.visitor-admin-checkin {
+  padding: 2rem;
+  max-width: 720px;
+}
+
+.visitor-admin-checkin__inner h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+.visitor-admin-checkin__inner > p {
+  margin: 0 0 1.5rem;
+  color: var(--theme-elevation-600);
+}
+
+.checkin-scanner__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.checkin-scanner__controls form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.checkin-scanner__controls input {
+  flex: 1;
+}
+
+.checkin-scanner__camera {
+  margin-bottom: 1rem;
+  max-width: 360px;
+}
+
+.checkin-scanner__error {
+  color: var(--theme-error-500);
+}
+
+.checkin-scanner__info,
+.checkin-scanner__done {
+  color: var(--theme-success-500);
+}
+
+.checkin-scanner__card {
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 8px;
+  padding: 1.25rem;
+  background: var(--theme-elevation-50);
+}
+
+.checkin-scanner__card h2 {
+  margin: 0 0 0.35rem;
+}
+
+.checkin-scanner__card dl {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.checkin-scanner__card dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--theme-elevation-500);
+}
+
+.checkin-scanner__card dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.checkin-scanner__card--checked_in {
+  border-color: var(--theme-success-500);
+}

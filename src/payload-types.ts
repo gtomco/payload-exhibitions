@@ -67,8 +67,12 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    microsites: Microsite;
+    'microsite-settings': MicrositeSetting;
     pages: Page;
     posts: Post;
+    events: Event;
+    visitors: Visitor;
     media: Media;
     categories: Category;
     users: User;
@@ -89,8 +93,12 @@ export interface Config {
     };
   };
   collectionsSelect: {
+    microsites: MicrositesSelect<false> | MicrositesSelect<true>;
+    'microsite-settings': MicrositeSettingsSelect<false> | MicrositeSettingsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
+    visitors: VisitorsSelect<false> | VisitorsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
@@ -113,11 +121,13 @@ export interface Config {
     header: Header;
     footer: Footer;
     theme: Theme;
+    'main-site': MainSite;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     theme: ThemeSelect<false> | ThemeSelect<true>;
+    'main-site': MainSiteSelect<false> | MainSiteSelect<true>;
   };
   locale: null;
   widgets: {
@@ -154,123 +164,157 @@ export interface UserAuthOperations {
   };
 }
 /**
+ * Each fair brand (e.g. ECGE 2026). Posts, pages and events are assigned to a microsite and appear on that fair’s public site.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
+ * via the `definition` "microsites".
  */
-export interface Page {
+export interface Microsite {
   id: number;
   title: string;
-  hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
-    richText?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
-          [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    links?:
-      | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: number | Page;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: number | Post;
-                } | null);
-            url?: string | null;
-            label: string;
-            /**
-             * Choose how the link should be rendered.
-             */
-            appearance?: ('default' | 'outline') | null;
-          };
-          id?: string | null;
-        }[]
-      | null;
-    media?: (number | null) | Media;
-  };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
   slug: string;
+  description?: string | null;
+  isActive?: boolean | null;
+  /**
+   * Public Next.js origin in development. Leave blank to use http://{slug}.{ROOT_DOMAIN} or /m/{slug} locally.
+   */
+  devUrl?: string | null;
+  /**
+   * Optional override. Leave blank to use https://{slug}.{ROOT_DOMAIN} from env ROOT_DOMAIN.
+   */
+  productionUrl?: string | null;
+  crmEventName?: string | null;
+  /**
+   * Prefer setting this on Microsite Settings. Fallback if settings doc is missing.
+   */
+  crmEventId?: string | null;
+  /**
+   * Prefer Theme on Microsite Settings. Used only if settings theme is empty.
+   */
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  darkColor?: string | null;
   updatedAt: string;
   createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
+ * One settings document per microsite — contact details and hero/footer copy for the public fair site.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
+ * via the `definition` "microsite-settings".
  */
-export interface Post {
+export interface MicrositeSetting {
   id: number;
-  title: string;
-  heroImage?: (number | null) | Media;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  relatedPosts?: (number | Post)[] | null;
-  categories?: (number | Category)[] | null;
-  meta?: {
-    title?: string | null;
+  /**
+   * Admin label, e.g. "ECGE 2026 site settings".
+   */
+  label: string;
+  /**
+   * Assigned automatically from the microsite switcher in the admin sidebar.
+   */
+  microsite?: (number | null) | Microsite;
+  crmEventName?: string | null;
+  /**
+   * Search and select the sales-CRM event that supplies booths and floor plans.
+   */
+  crmEventId?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  address?: string | null;
+  /**
+   * Small line above the hero headline.
+   */
+  heroEyebrow?: string | null;
+  heroTitle?: string | null;
+  heroSubtitle?: string | null;
+  footerNote?: string | null;
+  /**
+   * Used on visitor PDF tickets and email branding. Prefer a transparent PNG.
+   */
+  logo?: (number | null) | Media;
+  /**
+   * 4–8 digit PIN for the public /check-in kiosk. Leave empty to disable kiosk check-in.
+   */
+  checkInPin?: string | null;
+  /**
+   * Colors and typography for the public microsite. Applied as CSS variables on every page.
+   */
+  theme?: {
     /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     * Brand green / sustainability
      */
-    image?: (number | null) | Media;
-    description?: string | null;
+    primary?: string | null;
+    secondary?: string | null;
+    dark?: string | null;
+    font?:
+      | (
+          | 'Inter'
+          | 'Arial'
+          | 'Helvetica'
+          | 'Verdana'
+          | 'Tahoma'
+          | 'Trebuchet MS'
+          | 'Georgia'
+          | 'Times New Roman'
+          | 'Garamond'
+          | 'Palatino Linotype'
+          | 'Courier New'
+          | 'Lucida Sans'
+          | 'Segoe UI'
+          | 'Roboto'
+          | 'Open Sans'
+          | 'Montserrat'
+          | 'Poppins'
+          | 'Lato'
+        )
+      | null;
+    homeBgStart?: string | null;
+    homeBgMid?: string | null;
+    homeBgEnd?: string | null;
+    headerBg?: string | null;
+    calendarBgStart?: string | null;
+    calendarBgMid?: string | null;
+    calendarBgEnd?: string | null;
+    calendarGlowPrimaryColor?: string | null;
+    calendarGlowSecondaryColor?: string | null;
   };
-  publishedAt?: string | null;
-  authors?: (number | User)[] | null;
-  populatedAuthors?:
+  /**
+   * Mega-menu groups for the public microsite. Lead and item links must pick existing pages in this microsite.
+   */
+  navigation?:
     | {
+        /**
+         * Stable id, e.g. about, visit, exhibit.
+         */
+        key: string;
+        titleSq: string;
+        titleEn: string;
+        leadSq: string;
+        leadEn: string;
+        /**
+         * Page opened when the group lead is clicked.
+         */
+        leadPage: number | Page;
+        items?:
+          | {
+              /**
+               * Select an existing page in this microsite.
+               */
+              page: number | Page;
+              labelSq: string;
+              labelEn: string;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
-        name?: string | null;
       }[]
     | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
   updatedAt: string;
   createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -393,6 +437,137 @@ export interface FolderInterface {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  hero: {
+    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    richText?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    links?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: number | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: number | Post;
+                } | null)
+              | ({
+                  relationTo: 'events';
+                  value: number | Event;
+                } | null);
+            url?: string | null;
+            label: string;
+            /**
+             * Choose how the link should be rendered.
+             */
+            appearance?: ('default' | 'outline') | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    media?: (number | null) | Media;
+  };
+  layout: (CallToActionBlock | ContentBlock | MediaBlock | GalleryBlock | BannerBlock | ArchiveBlock | FormBlock)[];
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  /**
+   * Assigned automatically from the microsite switcher in the admin sidebar.
+   */
+  microsite?: (number | null) | Microsite;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  heroImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  relatedPosts?: (number | Post)[] | null;
+  categories?: (number | Category)[] | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  authors?: (number | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  /**
+   * Assigned automatically from the microsite switcher in the admin sidebar.
+   */
+  microsite?: (number | null) | Microsite;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
@@ -443,6 +618,62 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  title: string;
+  heroImage?: (number | null) | Media;
+  eventDate: string;
+  location?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  relatedEvents?: (number | Event)[] | null;
+  categories?: (number | Category)[] | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  authors?: (number | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  /**
+   * Assigned automatically from the microsite switcher in the admin sidebar.
+   */
+  microsite?: (number | null) | Microsite;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CallToActionBlock".
  */
 export interface CallToActionBlock {
@@ -474,6 +705,10 @@ export interface CallToActionBlock {
             | ({
                 relationTo: 'posts';
                 value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'events';
+                value: number | Event;
               } | null);
           url?: string | null;
           label: string;
@@ -524,6 +759,10 @@ export interface ContentBlock {
             | ({
                 relationTo: 'posts';
                 value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'events';
+                value: number | Event;
               } | null);
           url?: string | null;
           label: string;
@@ -548,6 +787,54 @@ export interface MediaBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock".
+ */
+export interface GalleryBlock {
+  style: 'slideshow' | 'grid';
+  /**
+   * Seconds between slides. Set to 0 to disable autoplay.
+   */
+  autoplaySeconds?: number | null;
+  slides: {
+    image: number | Media;
+    caption?: string | null;
+    /**
+     * Optional URL when the slide is clicked.
+     */
+    link?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'gallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock".
+ */
+export interface BannerBlock {
+  style: 'info' | 'warning' | 'error' | 'success';
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'banner';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -784,6 +1071,48 @@ export interface Form {
   createdAt: string;
 }
 /**
+ * Visitor registrations and entrance tickets for the active microsite / exhibition.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visitors".
+ */
+export interface Visitor {
+  id: number;
+  /**
+   * Assigned automatically from the microsite switcher in the admin sidebar.
+   */
+  microsite?: (number | null) | Microsite;
+  /**
+   * CRM exhibition event snapshot at registration time.
+   */
+  crmEventId?: string | null;
+  crmEventName?: string | null;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  company?: string | null;
+  jobTitle?: string | null;
+  country?: string | null;
+  /**
+   * Opaque token used in QR codes and ticket URLs.
+   */
+  ticketToken: string;
+  status: 'registered' | 'checked_in' | 'cancelled';
+  checkedInAt?: string | null;
+  /**
+   * User id or "kiosk".
+   */
+  checkedInBy?: string | null;
+  eventTitle?: string | null;
+  eventDates?: string | null;
+  eventLocation?: string | null;
+  emailSentAt?: string | null;
+  emailError?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -803,9 +1132,17 @@ export interface Redirect {
       | ({
           relationTo: 'posts';
           value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'events';
+          value: number | Event;
         } | null);
     url?: string | null;
   };
+  /**
+   * Assigned automatically from the microsite switcher in the admin sidebar.
+   */
+  microsite?: (number | null) | Microsite;
   updatedAt: string;
   createdAt: string;
 }
@@ -836,10 +1173,15 @@ export interface Search {
   id: number;
   title?: string | null;
   priority?: number | null;
-  doc: {
-    relationTo: 'posts';
-    value: number | Post;
-  };
+  doc:
+    | {
+        relationTo: 'posts';
+        value: number | Post;
+      }
+    | {
+        relationTo: 'events';
+        value: number | Event;
+      };
   slug?: string | null;
   meta?: {
     title?: string | null;
@@ -854,6 +1196,7 @@ export interface Search {
         id?: string | null;
       }[]
     | null;
+  microsite?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -974,12 +1317,28 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'microsites';
+        value: number | Microsite;
+      } | null)
+    | ({
+        relationTo: 'microsite-settings';
+        value: number | MicrositeSetting;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: number | Page;
       } | null)
     | ({
         relationTo: 'posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
+      } | null)
+    | ({
+        relationTo: 'visitors';
+        value: number | Visitor;
       } | null)
     | ({
         relationTo: 'media';
@@ -1057,6 +1416,83 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "microsites_select".
+ */
+export interface MicrositesSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  description?: T;
+  isActive?: T;
+  devUrl?: T;
+  productionUrl?: T;
+  crmEventName?: T;
+  crmEventId?: T;
+  primaryColor?: T;
+  secondaryColor?: T;
+  darkColor?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "microsite-settings_select".
+ */
+export interface MicrositeSettingsSelect<T extends boolean = true> {
+  label?: T;
+  microsite?: T;
+  crmEventName?: T;
+  crmEventId?: T;
+  contactEmail?: T;
+  contactPhone?: T;
+  address?: T;
+  heroEyebrow?: T;
+  heroTitle?: T;
+  heroSubtitle?: T;
+  footerNote?: T;
+  logo?: T;
+  checkInPin?: T;
+  theme?:
+    | T
+    | {
+        primary?: T;
+        secondary?: T;
+        dark?: T;
+        font?: T;
+        homeBgStart?: T;
+        homeBgMid?: T;
+        homeBgEnd?: T;
+        headerBg?: T;
+        calendarBgStart?: T;
+        calendarBgMid?: T;
+        calendarBgEnd?: T;
+        calendarGlowPrimaryColor?: T;
+        calendarGlowSecondaryColor?: T;
+      };
+  navigation?:
+    | T
+    | {
+        key?: T;
+        titleSq?: T;
+        titleEn?: T;
+        leadSq?: T;
+        leadEn?: T;
+        leadPage?: T;
+        items?:
+          | T
+          | {
+              page?: T;
+              labelSq?: T;
+              labelEn?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
@@ -1089,6 +1525,8 @@ export interface PagesSelect<T extends boolean = true> {
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
+        gallery?: T | GalleryBlockSelect<T>;
+        banner?: T | BannerBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
@@ -1100,6 +1538,7 @@ export interface PagesSelect<T extends boolean = true> {
         description?: T;
       };
   publishedAt?: T;
+  microsite?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -1167,6 +1606,34 @@ export interface MediaBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryBlock_select".
+ */
+export interface GalleryBlockSelect<T extends boolean = true> {
+  style?: T;
+  autoplaySeconds?: T;
+  slides?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        link?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock_select".
+ */
+export interface BannerBlockSelect<T extends boolean = true> {
+  style?: T;
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ArchiveBlock_select".
  */
 export interface ArchiveBlockSelect<T extends boolean = true> {
@@ -1215,11 +1682,73 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
         name?: T;
       };
+  microsite?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  title?: T;
+  heroImage?: T;
+  eventDate?: T;
+  location?: T;
+  content?: T;
+  relatedEvents?: T;
+  categories?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  authors?: T;
+  populatedAuthors?:
+    | T
+    | {
+        id?: T;
+        name?: T;
+      };
+  microsite?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "visitors_select".
+ */
+export interface VisitorsSelect<T extends boolean = true> {
+  microsite?: T;
+  crmEventId?: T;
+  crmEventName?: T;
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  phone?: T;
+  company?: T;
+  jobTitle?: T;
+  country?: T;
+  ticketToken?: T;
+  status?: T;
+  checkedInAt?: T;
+  checkedInBy?: T;
+  eventTitle?: T;
+  eventDates?: T;
+  eventLocation?: T;
+  emailSentAt?: T;
+  emailError?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1371,6 +1900,7 @@ export interface RedirectsSelect<T extends boolean = true> {
         reference?: T;
         url?: T;
       };
+  microsite?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1547,6 +2077,7 @@ export interface SearchSelect<T extends boolean = true> {
         title?: T;
         id?: T;
       };
+  microsite?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1652,6 +2183,10 @@ export interface Header {
             | ({
                 relationTo: 'posts';
                 value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'events';
+                value: number | Event;
               } | null);
           url?: string | null;
           label: string;
@@ -1681,6 +2216,10 @@ export interface Footer {
             | ({
                 relationTo: 'posts';
                 value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'events';
+                value: number | Event;
               } | null);
           url?: string | null;
           label: string;
@@ -1759,6 +2298,223 @@ export interface Theme {
     cardForeground?: string | null;
     border?: string | null;
   };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Corporate i-exhibitions.com homepage — every section, platform link, news card, video, and theme color.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "main-site".
+ */
+export interface MainSite {
+  id: number;
+  /**
+   * Brand palette (default: 80% white / 15% black / 5% IX orange).
+   */
+  theme?: {
+    black?: string | null;
+    white?: string | null;
+    accent?: string | null;
+    grey?: string | null;
+    soft?: string | null;
+    film?: string | null;
+    muted?: string | null;
+  };
+  navAboutEn?: string | null;
+  navAboutSq?: string | null;
+  navEventsEn?: string | null;
+  navEventsSq?: string | null;
+  navCultureEn?: string | null;
+  navCultureSq?: string | null;
+  navNewsEn?: string | null;
+  navNewsSq?: string | null;
+  navContactEn?: string | null;
+  navContactSq?: string | null;
+  heroEyebrowEn?: string | null;
+  heroEyebrowSq?: string | null;
+  heroTitleEn?: string | null;
+  heroTitleSq?: string | null;
+  heroBrandEn?: string | null;
+  heroBrandSq?: string | null;
+  heroBodyEn?: string | null;
+  heroBodySq?: string | null;
+  heroCtaPrimaryEn?: string | null;
+  heroCtaPrimarySq?: string | null;
+  heroCtaSecondaryEn?: string | null;
+  heroCtaSecondarySq?: string | null;
+  heroImage?: (number | null) | Media;
+  heroCaptionEn?: string | null;
+  heroCaptionSq?: string | null;
+  platformsEyebrowEn?: string | null;
+  platformsEyebrowSq?: string | null;
+  platformsHeadingEn?: string | null;
+  platformsHeadingSq?: string | null;
+  platformsIntroEn?: string | null;
+  platformsIntroSq?: string | null;
+  platformsSeeAllEn?: string | null;
+  platformsSeeAllSq?: string | null;
+  /**
+   * Fairs / platforms. “Microsite” → /m/{slug} (or production URL). “External” → custom URL (e.g. Future2Tech).
+   */
+  platforms?:
+    | {
+        titleEn: string;
+        titleSq: string;
+        subtitleEn?: string | null;
+        subtitleSq?: string | null;
+        blurbEn?: string | null;
+        blurbSq?: string | null;
+        logo?: (number | null) | Media;
+        linkType: 'microsite' | 'external';
+        microsite?: (number | null) | Microsite;
+        externalUrl?: string | null;
+        /**
+         * Marquee word, e.g. TOURISM
+         */
+        tickerLabel?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  stats?:
+    | {
+        value: string;
+        labelEn: string;
+        labelSq: string;
+        id?: string | null;
+      }[]
+    | null;
+  storyEyebrowEn?: string | null;
+  storyEyebrowSq?: string | null;
+  storyTitleEn?: string | null;
+  storyTitleSq?: string | null;
+  storyBodyEn?: string | null;
+  storyBodySq?: string | null;
+  storyCtaEn?: string | null;
+  storyCtaSq?: string | null;
+  storyBadgeEn?: string | null;
+  storyBadgeSq?: string | null;
+  storyImage?: (number | null) | Media;
+  cultureEyebrowEn?: string | null;
+  cultureEyebrowSq?: string | null;
+  cultureTitleBeforeEn?: string | null;
+  cultureTitleBeforeSq?: string | null;
+  cultureTitleAccentEn?: string | null;
+  cultureTitleAccentSq?: string | null;
+  cultureBodyEn?: string | null;
+  cultureBodySq?: string | null;
+  cultureMeetTeamEn?: string | null;
+  cultureMeetTeamSq?: string | null;
+  /**
+   * “What We Stand For” principles
+   */
+  cultureValues?:
+    | {
+        titleEn: string;
+        titleSq: string;
+        bodyEn?: string | null;
+        bodySq?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  missionTitleEn?: string | null;
+  missionTitleSq?: string | null;
+  missionBodyEn?: string | null;
+  missionBodySq?: string | null;
+  team?:
+    | {
+        name: string;
+        roleEn: string;
+        roleSq: string;
+        /**
+         * Avatar initials, e.g. ES
+         */
+        initials?: string | null;
+        photo?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  servicesEyebrowEn?: string | null;
+  servicesEyebrowSq?: string | null;
+  servicesHeadingEn?: string | null;
+  servicesHeadingSq?: string | null;
+  services?:
+    | {
+        titleEn: string;
+        titleSq: string;
+        bodyEn?: string | null;
+        bodySq?: string | null;
+        ctaEn?: string | null;
+        ctaSq?: string | null;
+        /**
+         * Anchor or URL, e.g. #contact
+         */
+        ctaHref?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  filmEyebrowEn?: string | null;
+  filmEyebrowSq?: string | null;
+  filmTitleEn?: string | null;
+  filmTitleSq?: string | null;
+  filmMetaEn?: string | null;
+  filmMetaSq?: string | null;
+  filmUrl?: string | null;
+  newsEyebrowEn?: string | null;
+  newsEyebrowSq?: string | null;
+  newsHeadingEn?: string | null;
+  newsHeadingSq?: string | null;
+  newsAllLabelEn?: string | null;
+  newsAllLabelSq?: string | null;
+  newsItems?:
+    | {
+        categoryEn?: string | null;
+        categorySq?: string | null;
+        titleEn: string;
+        titleSq: string;
+        bodyEn?: string | null;
+        bodySq?: string | null;
+        image?: (number | null) | Media;
+        href?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * YouTube links (cover + click-through)
+   */
+  videos?:
+    | {
+        titleEn: string;
+        titleSq: string;
+        youtubeUrl: string;
+        cover?: (number | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  ctaEyebrowEn?: string | null;
+  ctaEyebrowSq?: string | null;
+  ctaTitleEn?: string | null;
+  ctaTitleSq?: string | null;
+  ctaButtonEn?: string | null;
+  ctaButtonSq?: string | null;
+  footerTaglineEn?: string | null;
+  footerTaglineSq?: string | null;
+  footerExploreEn?: string | null;
+  footerExploreSq?: string | null;
+  footerPlatformsEn?: string | null;
+  footerPlatformsSq?: string | null;
+  footerConnectEn?: string | null;
+  footerConnectSq?: string | null;
+  copyrightEn?: string | null;
+  copyrightSq?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+  addressEn?: string | null;
+  addressSq?: string | null;
+  instagram?: string | null;
+  facebook?: string | null;
+  linkedin?: string | null;
+  youtube?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1865,6 +2621,202 @@ export interface ThemeSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "main-site_select".
+ */
+export interface MainSiteSelect<T extends boolean = true> {
+  theme?:
+    | T
+    | {
+        black?: T;
+        white?: T;
+        accent?: T;
+        grey?: T;
+        soft?: T;
+        film?: T;
+        muted?: T;
+      };
+  navAboutEn?: T;
+  navAboutSq?: T;
+  navEventsEn?: T;
+  navEventsSq?: T;
+  navCultureEn?: T;
+  navCultureSq?: T;
+  navNewsEn?: T;
+  navNewsSq?: T;
+  navContactEn?: T;
+  navContactSq?: T;
+  heroEyebrowEn?: T;
+  heroEyebrowSq?: T;
+  heroTitleEn?: T;
+  heroTitleSq?: T;
+  heroBrandEn?: T;
+  heroBrandSq?: T;
+  heroBodyEn?: T;
+  heroBodySq?: T;
+  heroCtaPrimaryEn?: T;
+  heroCtaPrimarySq?: T;
+  heroCtaSecondaryEn?: T;
+  heroCtaSecondarySq?: T;
+  heroImage?: T;
+  heroCaptionEn?: T;
+  heroCaptionSq?: T;
+  platformsEyebrowEn?: T;
+  platformsEyebrowSq?: T;
+  platformsHeadingEn?: T;
+  platformsHeadingSq?: T;
+  platformsIntroEn?: T;
+  platformsIntroSq?: T;
+  platformsSeeAllEn?: T;
+  platformsSeeAllSq?: T;
+  platforms?:
+    | T
+    | {
+        titleEn?: T;
+        titleSq?: T;
+        subtitleEn?: T;
+        subtitleSq?: T;
+        blurbEn?: T;
+        blurbSq?: T;
+        logo?: T;
+        linkType?: T;
+        microsite?: T;
+        externalUrl?: T;
+        tickerLabel?: T;
+        id?: T;
+      };
+  stats?:
+    | T
+    | {
+        value?: T;
+        labelEn?: T;
+        labelSq?: T;
+        id?: T;
+      };
+  storyEyebrowEn?: T;
+  storyEyebrowSq?: T;
+  storyTitleEn?: T;
+  storyTitleSq?: T;
+  storyBodyEn?: T;
+  storyBodySq?: T;
+  storyCtaEn?: T;
+  storyCtaSq?: T;
+  storyBadgeEn?: T;
+  storyBadgeSq?: T;
+  storyImage?: T;
+  cultureEyebrowEn?: T;
+  cultureEyebrowSq?: T;
+  cultureTitleBeforeEn?: T;
+  cultureTitleBeforeSq?: T;
+  cultureTitleAccentEn?: T;
+  cultureTitleAccentSq?: T;
+  cultureBodyEn?: T;
+  cultureBodySq?: T;
+  cultureMeetTeamEn?: T;
+  cultureMeetTeamSq?: T;
+  cultureValues?:
+    | T
+    | {
+        titleEn?: T;
+        titleSq?: T;
+        bodyEn?: T;
+        bodySq?: T;
+        id?: T;
+      };
+  missionTitleEn?: T;
+  missionTitleSq?: T;
+  missionBodyEn?: T;
+  missionBodySq?: T;
+  team?:
+    | T
+    | {
+        name?: T;
+        roleEn?: T;
+        roleSq?: T;
+        initials?: T;
+        photo?: T;
+        id?: T;
+      };
+  servicesEyebrowEn?: T;
+  servicesEyebrowSq?: T;
+  servicesHeadingEn?: T;
+  servicesHeadingSq?: T;
+  services?:
+    | T
+    | {
+        titleEn?: T;
+        titleSq?: T;
+        bodyEn?: T;
+        bodySq?: T;
+        ctaEn?: T;
+        ctaSq?: T;
+        ctaHref?: T;
+        id?: T;
+      };
+  filmEyebrowEn?: T;
+  filmEyebrowSq?: T;
+  filmTitleEn?: T;
+  filmTitleSq?: T;
+  filmMetaEn?: T;
+  filmMetaSq?: T;
+  filmUrl?: T;
+  newsEyebrowEn?: T;
+  newsEyebrowSq?: T;
+  newsHeadingEn?: T;
+  newsHeadingSq?: T;
+  newsAllLabelEn?: T;
+  newsAllLabelSq?: T;
+  newsItems?:
+    | T
+    | {
+        categoryEn?: T;
+        categorySq?: T;
+        titleEn?: T;
+        titleSq?: T;
+        bodyEn?: T;
+        bodySq?: T;
+        image?: T;
+        href?: T;
+        id?: T;
+      };
+  videos?:
+    | T
+    | {
+        titleEn?: T;
+        titleSq?: T;
+        youtubeUrl?: T;
+        cover?: T;
+        id?: T;
+      };
+  ctaEyebrowEn?: T;
+  ctaEyebrowSq?: T;
+  ctaTitleEn?: T;
+  ctaTitleSq?: T;
+  ctaButtonEn?: T;
+  ctaButtonSq?: T;
+  footerTaglineEn?: T;
+  footerTaglineSq?: T;
+  footerExploreEn?: T;
+  footerExploreSq?: T;
+  footerPlatformsEn?: T;
+  footerPlatformsSq?: T;
+  footerConnectEn?: T;
+  footerConnectSq?: T;
+  copyrightEn?: T;
+  copyrightSq?: T;
+  contactEmail?: T;
+  contactPhone?: T;
+  addressEn?: T;
+  addressSq?: T;
+  instagram?: T;
+  facebook?: T;
+  linkedin?: T;
+  youtube?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "collections_widget".
  */
 export interface CollectionsWidget {
@@ -1889,36 +2841,15 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'posts';
           value: number | Post;
+        } | null)
+      | ({
+          relationTo: 'events';
+          value: number | Event;
         } | null);
     global?: string | null;
     user?: (number | null) | User;
   };
   output?: unknown;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock".
- */
-export interface BannerBlock {
-  style: 'info' | 'warning' | 'error' | 'success';
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'banner';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
