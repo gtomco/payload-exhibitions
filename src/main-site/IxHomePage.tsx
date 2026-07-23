@@ -1,10 +1,9 @@
+import Image from 'next/image'
 import React from 'react'
 
-import type { PublicLang } from '@/microsite/constants'
 import type { IxMainContent } from '@/main-site/defaults'
 
 type Props = {
-  lang: PublicLang
   content: IxMainContent
 }
 
@@ -19,27 +18,6 @@ function XMark({ className }: { className?: string }) {
   )
 }
 
-function SocialRail({ social }: { social: IxMainContent['social'] }) {
-  const items = [
-    { href: social.facebook, label: 'Fb' },
-    { href: social.instagram, label: 'Ig' },
-    { href: social.linkedin, label: 'In' },
-    { href: social.youtube, label: 'Yt' },
-  ].filter((i) => i.href)
-
-  if (!items.length) return null
-
-  return (
-    <div className="ix-social-rail" aria-label="Social">
-      {items.map((item) => (
-        <a key={item.label} href={item.href!} target="_blank" rel="noopener noreferrer">
-          {item.label}
-        </a>
-      ))}
-    </div>
-  )
-}
-
 export function IxHomePage({ content }: Props) {
   const tickerWords = content.platforms.map((p) => p.tickerLabel || p.title).filter(Boolean)
   const ticker = [...tickerWords, ...tickerWords]
@@ -49,7 +27,7 @@ export function IxHomePage({ content }: Props) {
       <section className="ix-hero" id="about">
         <div className="ix-wrap ix-hero__grid">
           <div>
-            <div className="ix-label">{content.heroEyebrow}</div>
+            <p className="ix-label">{content.heroEyebrow}</p>
             <h1 className="ix-display ix-hero__title">
               {content.heroTitle} <span className="ix-x">{content.heroBrand}</span>
             </h1>
@@ -65,16 +43,21 @@ export function IxHomePage({ content }: Props) {
           </div>
 
           <div className="ix-hero__media">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={content.heroImageUrl} alt="" />
+            <Image
+              src={content.heroImageUrl}
+              alt={content.heroCaption || content.seoTitle}
+              width={960}
+              height={720}
+              priority
+              sizes="(max-width: 900px) 100vw, 48vw"
+              style={{ width: '100%', height: 'auto' }}
+            />
             <div className="ix-hero__caption">
               <span className="ix-x">×</span>
               {content.heroCaption}
             </div>
           </div>
         </div>
-
-        <SocialRail social={content.social} />
 
         <div className="ix-ticker" aria-hidden="true">
           <div className="ix-ticker__track">
@@ -88,7 +71,7 @@ export function IxHomePage({ content }: Props) {
         </div>
       </section>
 
-      <section className="ix-stats">
+      <section className="ix-stats" aria-label="Key figures">
         <div className="ix-wrap ix-stats__grid">
           {content.stats.map((stat) => (
             <div className="ix-stat" key={`${stat.value}-${stat.label}`}>
@@ -102,7 +85,7 @@ export function IxHomePage({ content }: Props) {
       <section className="ix-story" id="story">
         <div className="ix-wrap ix-story__grid">
           <div>
-            <div className="ix-label">{content.storyEyebrow}</div>
+            <p className="ix-label">{content.storyEyebrow}</p>
             <h2 className="ix-display ix-story__title">{content.storyTitle}</h2>
             <div className="ix-story__body">
               {content.storyBody.split(/\n\n+/).map((para) => (
@@ -116,8 +99,14 @@ export function IxHomePage({ content }: Props) {
             </div>
           </div>
           <div className="ix-story__media">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={content.storyImageUrl} alt="" />
+            <Image
+              src={content.storyImageUrl}
+              alt={content.storyBadge || content.storyTitle}
+              width={800}
+              height={1000}
+              sizes="(max-width: 900px) 100vw, 40vw"
+              style={{ width: '100%', height: 'auto' }}
+            />
             <div className="ix-story__badge">{content.storyBadge}</div>
           </div>
         </div>
@@ -127,7 +116,7 @@ export function IxHomePage({ content }: Props) {
         <div className="ix-wrap">
           <div className="ix-platforms__head">
             <div>
-              <div className="ix-label">{content.platformsEyebrow}</div>
+              <p className="ix-label">{content.platformsEyebrow}</p>
               <h2 className="ix-display ix-platforms__title">{content.platformsHeading}</h2>
             </div>
             <p className="ix-platforms__intro">{content.platformsIntro}</p>
@@ -143,7 +132,7 @@ export function IxHomePage({ content }: Props) {
             >
               {platform.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img className="ix-platform__logo" src={platform.logoUrl} alt="" />
+                <img className="ix-platform__logo" src={platform.logoUrl} alt={`${platform.title} logo`} />
               ) : (
                 <XMark className="ix-platform__mark" />
               )}
@@ -167,7 +156,7 @@ export function IxHomePage({ content }: Props) {
 
       <section className="ix-services" id="services">
         <div className="ix-wrap">
-          <div className="ix-label">{content.servicesEyebrow}</div>
+          <p className="ix-label">{content.servicesEyebrow}</p>
           <h2 className="ix-display ix-services__title">{content.servicesHeading}</h2>
           <div className="ix-services__grid">
             {content.services.map((service) => (
@@ -193,7 +182,7 @@ export function IxHomePage({ content }: Props) {
           X
         </div>
         <div className="ix-wrap ix-culture__inner">
-          <div className="ix-label ix-label--orange">{content.cultureEyebrow}</div>
+          <p className="ix-label ix-label--orange">{content.cultureEyebrow}</p>
           <h2 className="ix-display ix-culture__title">
             {content.cultureTitleBefore}{' '}
             <span className="ix-x">{content.cultureTitleAccent}</span>
@@ -233,17 +222,19 @@ export function IxHomePage({ content }: Props) {
 
       <section className="ix-team" id="team">
         <div className="ix-wrap">
-          <div className="ix-label">{content.cultureMeetTeam}</div>
+          <p className="ix-label">{content.cultureMeetTeam}</p>
           <div className="ix-team__grid">
             {content.team.map((member) => (
               <article key={member.name} className="ix-team-card">
                 {member.photoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={member.photoUrl} alt="" />
+                  <img src={member.photoUrl} alt={member.name} />
                 ) : (
-                  <div className="ix-team-card__avatar">{member.initials}</div>
+                  <div className="ix-team-card__avatar" aria-hidden="true">
+                    {member.initials}
+                  </div>
                 )}
-                <h3>{member.name}</h3>
+                <p className="ix-team-card__name">{member.name}</p>
                 <p>{member.role}</p>
               </article>
             ))}
@@ -263,7 +254,7 @@ export function IxHomePage({ content }: Props) {
               ▶
             </span>
             <div>
-              <div className="ix-label ix-label--orange">{content.filmEyebrow}</div>
+              <p className="ix-label ix-label--orange">{content.filmEyebrow}</p>
               <h2 className="ix-display ix-film__title">{content.filmTitle}</h2>
             </div>
             <div className="ix-film__meta">{content.filmMeta}</div>
@@ -275,7 +266,7 @@ export function IxHomePage({ content }: Props) {
         <div className="ix-wrap">
           <div className="ix-news__head">
             <div>
-              <div className="ix-label ix-label--orange">{content.newsEyebrow}</div>
+              <p className="ix-label ix-label--orange">{content.newsEyebrow}</p>
               <h2 className="ix-display ix-news__title">{content.newsHeading}</h2>
             </div>
             <a className="ix-text-link" href="#videos">
@@ -286,15 +277,27 @@ export function IxHomePage({ content }: Props) {
             {content.newsItems.map((card) => {
               const inner = (
                 <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={card.imageUrl} alt="" />
+                  <Image
+                    src={card.imageUrl}
+                    alt={card.title}
+                    width={640}
+                    height={400}
+                    sizes="(max-width: 900px) 100vw, 30vw"
+                    style={{ width: '100%', height: 'auto' }}
+                  />
                   <div className="ix-news-card__cat">{card.category}</div>
-                  <h3 className="ix-news-card__title">{card.title}</h3>
+                  <p className="ix-news-card__title">{card.title}</p>
                   <p className="ix-news-card__body">{card.body}</p>
                 </>
               )
               return card.href ? (
-                <a className="ix-news-card" key={card.title} href={card.href} target="_blank" rel="noopener noreferrer">
+                <a
+                  className="ix-news-card"
+                  key={card.title}
+                  href={card.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {inner}
                 </a>
               ) : (
@@ -310,7 +313,7 @@ export function IxHomePage({ content }: Props) {
       {content.videos.length ? (
         <section className="ix-videos" id="videos">
           <div className="ix-wrap">
-            <div className="ix-label ix-label--orange">Videos</div>
+            <p className="ix-label ix-label--orange">Videos</p>
             <div className="ix-videos__grid">
               {content.videos.map((video) => (
                 <a
@@ -326,12 +329,12 @@ export function IxHomePage({ content }: Props) {
                       video.coverUrl ||
                       `https://i.ytimg.com/vi/${video.youtubeUrl.split('v=')[1]?.split('&')[0] || ''}/hqdefault.jpg`
                     }
-                    alt=""
+                    alt={video.title}
                   />
                   <span className="ix-video-card__play" aria-hidden="true">
                     ▶
                   </span>
-                  <h3>{video.title}</h3>
+                  <p className="ix-video-card__title">{video.title}</p>
                 </a>
               ))}
             </div>

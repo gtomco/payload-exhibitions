@@ -25,5 +25,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateMicrositeMeta({
     title: 'Entrance check-in',
     description: 'Staff check-in scanner for visitor tickets.',
+    robots: { index: false, follow: false },
   })
 }

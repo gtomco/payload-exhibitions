@@ -12,7 +12,7 @@ import {
   getRequestPublicOrigin,
 } from '@/utilities/getRequestMicrosite'
 import { queryMicrositePosts } from '@/utilities/queryMicrositeContent'
-import { breadcrumbJsonLd, jsonLdScript, webPageJsonLd } from '@/utilities/jsonLd'
+import { breadcrumbJsonLd, jsonLdScript, newsArticleJsonLd } from '@/utilities/jsonLd'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,11 +36,23 @@ export default async function NewsArticlePage({ params: paramsPromise }: Args) {
     return <PayloadRedirects url={url} />
   }
 
+  const heroImage =
+    post.heroImage && typeof post.heroImage === 'object' && post.heroImage.url
+      ? `${origin}${post.heroImage.url}`
+      : post.meta?.image && typeof post.meta.image === 'object' && post.meta.image.url
+        ? `${origin}${post.meta.image.url}`
+        : undefined
+
   const jsonLd = [
-    webPageJsonLd({
-      name: post.title,
+    newsArticleJsonLd({
+      headline: post.title,
       url: `${origin}${url}`,
       description: post.meta?.description,
+      datePublished: post.publishedAt,
+      dateModified: post.updatedAt,
+      image: heroImage,
+      publisherName: siteName,
+      publisherUrl: origin,
       inLanguage: lang,
     }),
     breadcrumbJsonLd({

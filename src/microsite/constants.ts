@@ -25,6 +25,9 @@ export const PUBLIC_MICROSITE_BASE_PATH_HEADER = 'x-microsite-base-path'
 /** Public SSR: language from /en|/sq prefix rewrite. */
 export const PUBLIC_LANG_HEADER = 'x-microsite-lang'
 
+/** When the request URL included /en or /sq, the prefix code (for canonical/hreflang). */
+export const PUBLIC_LANG_PREFIX_HEADER = 'x-microsite-lang-prefix'
+
 /** Cookie for visitor language preference. */
 export const PUBLIC_LANG_COOKIE = 'microsite-lang'
 

@@ -992,7 +992,8 @@
   max-width: 16rem;
 }
 
-.ix-footer__col h4 {
+.ix-footer__col h4,
+.ix-footer__col-title {
   margin: 0 0 0.85rem;
   color: var(--ix-grey);
   font-size: 0.72rem;
@@ -1232,7 +1233,8 @@
   object-fit: cover;
 }
 
-.ix-team-card h3 {
+.ix-team-card h3,
+.ix-team-card__name {
   margin-top: 0.75rem;
   font-family: var(--ix-font-display);
   font-size: 1.05rem;
@@ -1294,7 +1296,8 @@
   justify-content: center;
 }
 
-.ix-video-card h3 {
+.ix-video-card h3,
+.ix-video-card__title {
   margin-top: 0.65rem;
   font-family: var(--ix-font-display);
   font-size: 1rem;

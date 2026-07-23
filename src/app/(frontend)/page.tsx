@@ -26,15 +26,15 @@ export default async function HomePage() {
     const org = organizationJsonLd({
       name: 'IX Exhibitions',
       url: origin,
-      description: content.heroBody,
+      description: content.seoDescription || content.heroBody,
       email: content.contactEmail,
       telephone: content.contactPhone,
       address: content.address,
     })
     const page = webPageJsonLd({
-      name: 'IX Exhibitions',
+      name: content.seoTitle,
       url: origin,
-      description: content.heroBody,
+      description: content.seoDescription,
       inLanguage: lang,
     })
     const crumbs = breadcrumbJsonLd({
@@ -48,7 +48,7 @@ export default async function HomePage() {
     return (
       <div>
         <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(jsonLd)} />
-        <IxHomePage lang={lang} content={content} />
+        <IxHomePage content={content} />
       </div>
     )
   }
@@ -109,13 +109,15 @@ export default async function HomePage() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const context = await getRequestMicrositeContext()
+  const lang = await getRequestLang()
   if (!context) {
+    const content = await getMainSiteContent(lang)
     return generateMicrositeMeta({
-      title: 'IX Exhibitions',
-      description:
-        'We build platforms — recurring meeting points where entire industries come together to open markets, spark collaboration and grow.',
+      title: content.seoTitle,
+      description: content.seoDescription,
       path: '/',
       siteName: 'IX Exhibitions',
+      absoluteTitle: true,
     })
   }
 

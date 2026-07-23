@@ -27,7 +27,10 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      //required: true,
+      admin: {
+        description:
+          'Describe the image for accessibility and SEO. Avoid empty alts on content images.',
+      },
     },
     {
       name: 'caption',

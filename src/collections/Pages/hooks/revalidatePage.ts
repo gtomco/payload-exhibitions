@@ -24,7 +24,7 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
 
       revalidatePath(path)
       revalidatePath('/')
-      revalidateTag('pages-sitemap', 'max')
+      revalidatePath('/sitemap.xml')
       const tag = micrositeTag(doc)
       if (tag) revalidateTag(tag, 'max')
     }
@@ -35,7 +35,7 @@ export const revalidatePage: CollectionAfterChangeHook<Page> = ({
       payload.logger.info(`Revalidating old page at path: ${oldPath}`)
 
       revalidatePath(oldPath)
-      revalidateTag('pages-sitemap', 'max')
+      revalidatePath('/sitemap.xml')
       const tag = micrositeTag(previousDoc)
       if (tag) revalidateTag(tag, 'max')
     }
@@ -47,7 +47,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Page> = ({ doc, req: { 
   if (!context.disableRevalidate) {
     const path = doc?.slug === 'home' ? '/' : `/${doc?.slug}`
     revalidatePath(path)
-    revalidateTag('pages-sitemap', 'max')
+    revalidatePath('/sitemap.xml')
     if (doc) {
       const tag = micrositeTag(doc)
       if (tag) revalidateTag(tag, 'max')

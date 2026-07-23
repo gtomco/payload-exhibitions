@@ -8,7 +8,7 @@ import { getServerSideURL } from './getURL'
 const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   const serverUrl = getServerSideURL()
 
-  let url = serverUrl + '/website-template-OG.webp'
+  let url = serverUrl + '/ix/hero-venue.png'
 
   if (image && typeof image === 'object' && 'url' in image) {
     const ogUrl = image.sizes?.og?.url
@@ -25,10 +25,16 @@ export const generateMeta = async (args: {
   const { doc } = args
 
   const ogImage = getImageURL(doc?.meta?.image)
+  const isPost = Boolean(doc && ('publishedAt' in doc || 'categories' in doc))
+  const path = doc?.slug
+    ? isPost
+      ? `/news/${Array.isArray(doc.slug) ? doc.slug.join('/') : doc.slug}`
+      : `/${Array.isArray(doc.slug) ? doc.slug.join('/') : doc.slug}`
+    : '/'
 
   const title = doc?.meta?.title
-    ? doc?.meta?.title + ' | Payload Website Template'
-    : 'Payload Website Template'
+    ? `${doc.meta.title} | IX Exhibitions`
+    : 'IX Exhibitions'
 
   return {
     description: doc?.meta?.description,
@@ -42,8 +48,14 @@ export const generateMeta = async (args: {
           ]
         : undefined,
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      url: path,
     }),
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: doc?.meta?.description || undefined,
+      images: [ogImage],
+    },
     title,
   }
 }

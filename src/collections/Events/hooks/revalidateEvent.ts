@@ -23,7 +23,7 @@ export const revalidateEvent: CollectionAfterChangeHook<Event> = ({
       revalidatePath(`/events/${doc.slug}`)
       revalidatePath('/program')
       revalidatePath('/events')
-      revalidateTag('events-sitemap', 'max')
+      revalidatePath('/sitemap.xml')
       const tag = micrositeTag(doc)
       if (tag) revalidateTag(tag, 'max')
     }
@@ -31,7 +31,7 @@ export const revalidateEvent: CollectionAfterChangeHook<Event> = ({
     if (previousDoc._status === 'published' && doc._status !== 'published') {
       revalidatePath(`/events/${previousDoc.slug}`)
       revalidatePath('/program')
-      revalidateTag('events-sitemap', 'max')
+      revalidatePath('/sitemap.xml')
       const tag = micrositeTag(previousDoc)
       if (tag) revalidateTag(tag, 'max')
     }
@@ -43,7 +43,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Event> = ({ doc, req: {
   if (!context.disableRevalidate) {
     revalidatePath(`/events/${doc?.slug}`)
     revalidatePath('/program')
-    revalidateTag('events-sitemap', 'max')
+    revalidatePath('/sitemap.xml')
     if (doc) {
       const tag = micrositeTag(doc)
       if (tag) revalidateTag(tag, 'max')

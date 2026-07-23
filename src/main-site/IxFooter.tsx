@@ -49,7 +49,7 @@ export function IxFooter({ content }: Props) {
           </div>
 
           <div className="ix-footer__col">
-            <h4>{content.footerExplore}</h4>
+            <p className="ix-footer__col-title">{content.footerExplore}</p>
             <a href="/#about">{content.nav.about}</a>
             <a href="/#events">{content.nav.events}</a>
             <a href="/#culture">{content.nav.culture}</a>
@@ -58,7 +58,7 @@ export function IxFooter({ content }: Props) {
           </div>
 
           <div className="ix-footer__col">
-            <h4>{content.footerPlatforms}</h4>
+            <p className="ix-footer__col-title">{content.footerPlatforms}</p>
             {content.platforms.map((p) => (
               <a
                 key={p.title}
@@ -72,7 +72,7 @@ export function IxFooter({ content }: Props) {
           </div>
 
           <div className="ix-footer__col">
-            <h4>{content.footerConnect}</h4>
+            <p className="ix-footer__col-title">{content.footerConnect}</p>
             <a href={`mailto:${content.contactEmail}`}>{content.contactEmail}</a>
             <a href={`tel:${content.contactPhone.replace(/\s+/g, '')}`}>{content.contactPhone}</a>
             <p style={{ whiteSpace: 'pre-line' }}>{content.address}</p>

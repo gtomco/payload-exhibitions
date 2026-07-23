@@ -50,6 +50,7 @@ const remotePatterns = serverUrlCandidates().flatMap((item) => {
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  poweredByHeader: false,
   // Temporarily required on Windows until Next.js fixes Turbopack Sass resolution.
   // See: https://github.com/vercel/next.js/issues/86431
   sassOptions: {
@@ -60,10 +61,25 @@ const nextConfig: NextConfig = {
       {
         pathname: '/api/media/file/**',
       },
+      {
+        pathname: '/ix/**',
+      },
+      {
+        pathname: '/ecge/**',
+      },
     ],
     qualities: [100],
     remotePatterns,
   },
+  headers: async () => [
+    {
+      source: '/(.*)',
+      headers: [
+        { key: 'X-Content-Type-Options', value: 'nosniff' },
+        { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      ],
+    },
+  ],
   typescript: {
     // Pre-existing template/seed/hook typing debt; keep Docker/prod builds green.
     ignoreBuildErrors: true,

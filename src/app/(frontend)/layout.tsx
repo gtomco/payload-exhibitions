@@ -152,6 +152,10 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${siteName}`,
     },
     description: context?.microsite.description || undefined,
+    icons: {
+      icon: [{ url: '/favicon.ico' }, { url: '/favicon.svg', type: 'image/svg+xml' }],
+      apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
+    },
     openGraph: mergeOpenGraph({
       siteName,
       title: siteName,
@@ -160,6 +164,7 @@ export async function generateMetadata(): Promise<Metadata> {
     }),
     twitter: {
       card: 'summary_large_image',
+      images: [`${origin || getServerSideURL()}/ix/hero-venue.png`],
     },
   }
 }

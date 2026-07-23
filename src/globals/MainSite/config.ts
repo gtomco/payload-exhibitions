@@ -80,6 +80,19 @@ export const MainSite: GlobalConfig = {
           ],
         },
         {
+          label: 'SEO',
+          fields: [
+            enSq('seoTitle', 'Meta title', 'text', {
+              en: 'IX Exhibitions — Industry platforms & trade fairs',
+              sq: 'IX Exhibitions — Platforma industrie dhe panairë B2B',
+            }),
+            enSq('seoDescription', 'Meta description', 'textarea', {
+              en: 'We build platforms — recurring meeting points where entire industries come together to open markets, spark collaboration and grow.',
+              sq: 'Ndërtojmë platforma — pika takimi të përsëritura ku industri të tëra bashkohen për të hapur tregje, bashkëpunim dhe rritje.',
+            }),
+          ],
+        },
+        {
           label: 'Navigation',
           fields: [
             enSq('navAbout', 'About', 'text', { en: 'About IX', sq: 'Rreth IX' }),
@@ -96,7 +109,10 @@ export const MainSite: GlobalConfig = {
               en: 'I - EXHIBITIONS · TIRANA, ALBANIA',
               sq: 'I - EXHIBITIONS · TIRANË, SHQIPËRI',
             }),
-            enSq('heroTitle', 'Title line', 'text', { en: 'Today, we are', sq: 'Sot, ne jemi' }),
+            enSq('heroTitle', 'Title line', 'text', {
+              en: 'Today we build industry platforms as',
+              sq: 'Sot ndërtojmë platforma industrie si',
+            }),
             enSq('heroBrand', 'Brand word', 'text', { en: 'IX.', sq: 'IX.' }),
             enSq('heroBody', 'Body', 'textarea', {
               en: 'We no longer see exhibitions as standalone events. We build platforms — recurring meeting points where entire industries come together to open markets, spark collaboration and grow.',

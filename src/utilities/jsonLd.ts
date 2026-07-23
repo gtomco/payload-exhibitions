@@ -67,6 +67,7 @@ export function eventJsonLd(args: {
   startDate?: string | null
   endDate?: string | null
   locationName?: string | null
+  image?: string | null
 }) {
   return {
     '@context': 'https://schema.org',
@@ -76,12 +77,52 @@ export function eventJsonLd(args: {
     description: args.description || undefined,
     startDate: args.startDate || undefined,
     endDate: args.endDate || undefined,
+    image: args.image || undefined,
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     eventStatus: 'https://schema.org/EventScheduled',
     location: args.locationName
       ? {
           '@type': 'Place',
           name: args.locationName,
+        }
+      : undefined,
+  } satisfies JsonLd
+}
+
+export function newsArticleJsonLd(args: {
+  headline: string
+  url: string
+  description?: string | null
+  datePublished?: string | null
+  dateModified?: string | null
+  image?: string | null
+  authorName?: string | null
+  publisherName?: string
+  publisherUrl?: string
+  inLanguage?: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: args.headline,
+    url: args.url,
+    mainEntityOfPage: args.url,
+    description: args.description || undefined,
+    datePublished: args.datePublished || undefined,
+    dateModified: args.dateModified || args.datePublished || undefined,
+    image: args.image || undefined,
+    inLanguage: args.inLanguage || undefined,
+    author: args.authorName
+      ? {
+          '@type': 'Person',
+          name: args.authorName,
+        }
+      : undefined,
+    publisher: args.publisherName
+      ? {
+          '@type': 'Organization',
+          name: args.publisherName,
+          url: args.publisherUrl || undefined,
         }
       : undefined,
   } satisfies JsonLd

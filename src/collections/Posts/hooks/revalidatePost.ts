@@ -24,7 +24,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       revalidatePath(`/news/${doc.slug}`)
       revalidatePath('/news')
       revalidatePath('/')
-      revalidateTag('posts-sitemap', 'max')
+      revalidatePath('/sitemap.xml')
       const tag = micrositeTag(doc)
       if (tag) revalidateTag(tag, 'max')
     }
@@ -33,7 +33,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       revalidatePath(`/posts/${previousDoc.slug}`)
       revalidatePath(`/news/${previousDoc.slug}`)
       revalidatePath('/news')
-      revalidateTag('posts-sitemap', 'max')
+      revalidatePath('/sitemap.xml')
       const tag = micrositeTag(previousDoc)
       if (tag) revalidateTag(tag, 'max')
     }
@@ -46,7 +46,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Post> = ({ doc, req: { 
     revalidatePath(`/posts/${doc?.slug}`)
     revalidatePath(`/news/${doc?.slug}`)
     revalidatePath('/news')
-    revalidateTag('posts-sitemap', 'max')
+    revalidatePath('/sitemap.xml')
     if (doc) {
       const tag = micrositeTag(doc)
       if (tag) revalidateTag(tag, 'max')

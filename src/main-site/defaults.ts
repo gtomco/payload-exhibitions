@@ -22,6 +22,8 @@ export type IxPlatformLink = {
 
 export type IxMainContent = {
   theme: IxTheme
+  seoTitle: string
+  seoDescription: string
   nav: {
     about: string
     events: string
@@ -184,6 +186,12 @@ export function defaultIxContent(lang: PublicLang): IxMainContent {
   const sq = lang === 'sq'
   return {
     theme: { ...IX_DEFAULT_THEME },
+    seoTitle: sq
+      ? 'IX Exhibitions — Platforma industrie dhe panairë B2B'
+      : 'IX Exhibitions — Industry platforms & trade fairs',
+    seoDescription: sq
+      ? 'Ndërtojmë platforma — pika takimi të përsëritura ku industri të tëra bashkohen për të hapur tregje, bashkëpunim dhe rritje.'
+      : 'We build platforms — recurring meeting points where entire industries come together to open markets, spark collaboration and grow.',
     nav: {
       about: sq ? 'Rreth IX' : 'About IX',
       events: sq ? 'Eventet IX' : 'IX Events',
@@ -192,7 +200,9 @@ export function defaultIxContent(lang: PublicLang): IxMainContent {
       contact: sq ? 'Na kontaktoni' : 'Get In Touch',
     },
     heroEyebrow: sq ? 'I - EXHIBITIONS · TIRANË, SHQIPËRI' : 'I - EXHIBITIONS · TIRANA, ALBANIA',
-    heroTitle: sq ? 'Sot, ne jemi' : 'Today, we are',
+    heroTitle: sq
+      ? 'Sot ndërtojmë platforma industrie dhe panairë B2B si'
+      : 'Today we build industry platforms and trade fairs as',
     heroBrand: 'IX.',
     heroBody: sq
       ? 'Nuk i shohim më panairët si ngjarje të izoluara. Ne ndërtojmë platforma — pika takimi të përsëritura ku industri të tëra bashkohen për të hapur tregje, bashkëpunim dhe rritje.'

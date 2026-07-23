@@ -89,9 +89,23 @@ Microsite `productionUrl` / `devUrl` are **optional**. Empty → derive from `RO
 
 ## Production sketch
 
-1. Point DNS `A/AAAA` for `ROOT_DOMAIN` and `*.ROOT_DOMAIN` at the server.
+1. Point DNS `A/AAAA` for `ROOT_DOMAIN`, `www.ROOT_DOMAIN`, and `*.ROOT_DOMAIN` at the server.
 2. Set `DATABASE_URL` to your managed Postgres, `PUBLIC_PROTOCOL=https`, `TRUST_PROXY=true`, `ENABLE_PATH_MICROSITES=false`.
-3. Do **not** use `--profile with-db` unless you want Postgres in Compose.
-4. `docker compose --env-file .env.prod up -d --build app caddy`
+3. Set `NEXT_PUBLIC_SERVER_URL=https://i-exhibitions.com` (non-www apex).
+4. Configure real `SMTP_*` and `CRM_*` for visitor tickets / CRM sync.
+5. Do **not** use `--profile with-db` unless you want Postgres in Compose.
+6. Enable the TLS block in [`docker/Caddyfile`](../docker/Caddyfile) (www → apex **301**, then reverse proxy).
+7. `docker compose --env-file .env.prod up -d --build app caddy`
+8. Run migrations; seed/update MainSite SEO titles; set check-in PINs; upload OG / apple-touch assets if needed.
 
 Admin: `https://{ROOT_DOMAIN}/admin`
+
+## SEO go-live checklist
+
+1. Confirm `www` **301** → apex (`curl -I https://www.i-exhibitions.com`).
+2. Check `/robots.txt` and `/sitemap.xml` on apex and on one microsite host (host-scoped URLs).
+3. View-source on `/` and `/en`: title, canonical, `hreflang` (`sq` / `en` / `x-default`), `apple-touch-icon`, no `X-Powered-By`.
+4. Spot-check news/event pages for `NewsArticle` / `Event` JSON-LD.
+5. Confirm `/check-in` is `noindex` and disallowed in robots.
+6. Google Search Console: domain property (or apex + microsite hosts); submit each `/sitemap.xml`.
+7. Re-run [Seobility](https://www.seobility.net/) on `https://i-exhibitions.com/` — expect www duplicate, short title/H1, and empty-alt warnings cleared.

@@ -7,6 +7,7 @@ import {
   DEFAULT_PUBLIC_LANG,
   PUBLIC_LANG_COOKIE,
   PUBLIC_LANG_HEADER,
+  PUBLIC_LANG_PREFIX_HEADER,
   PUBLIC_LANGS,
   PUBLIC_MICROSITE_BASE_PATH_HEADER,
   PUBLIC_MICROSITE_HOST_HEADER,
@@ -90,6 +91,13 @@ export async function getRequestLang(): Promise<PublicLang> {
   }
 
   return DEFAULT_PUBLIC_LANG
+}
+
+/** Lang segment present in the public URL (`en` | `sq`), or empty when unprefixed. */
+export async function getRequestLangPrefix(): Promise<'' | PublicLang> {
+  const headerStore = await nextHeaders()
+  const fromHeader = parseLang(headerStore.get(PUBLIC_LANG_PREFIX_HEADER))
+  return fromHeader || ''
 }
 
 /** e.g. `/m/ecge` when testing via path; empty string on real subdomain hosts. */

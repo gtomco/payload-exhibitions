@@ -322,6 +322,9 @@ export interface MicrositeSetting {
  */
 export interface Media {
   id: number;
+  /**
+   * Describe the image for accessibility and SEO. Avoid empty alts on content images.
+   */
   alt?: string | null;
   caption?: {
     root: {
@@ -2321,6 +2324,10 @@ export interface MainSite {
     film?: string | null;
     muted?: string | null;
   };
+  seoTitleEn?: string | null;
+  seoTitleSq?: string | null;
+  seoDescriptionEn?: string | null;
+  seoDescriptionSq?: string | null;
   navAboutEn?: string | null;
   navAboutSq?: string | null;
   navEventsEn?: string | null;
@@ -2635,6 +2642,10 @@ export interface MainSiteSelect<T extends boolean = true> {
         film?: T;
         muted?: T;
       };
+  seoTitleEn?: T;
+  seoTitleSq?: T;
+  seoDescriptionEn?: T;
+  seoDescriptionSq?: T;
   navAboutEn?: T;
   navAboutSq?: T;
   navEventsEn?: T;

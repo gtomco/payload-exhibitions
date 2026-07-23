@@ -13,7 +13,13 @@ import type { Where } from 'payload'
 
 import { EventHero } from '@/heros/EventHero'
 import { generateMicrositeMeta } from '@/utilities/generateMicrositeMeta'
-import { getRequestMicrosite, getRequestMicrositeContext } from '@/utilities/getRequestMicrosite'
+import {
+  getRequestLang,
+  getRequestMicrosite,
+  getRequestMicrositeContext,
+  getRequestPublicOrigin,
+} from '@/utilities/getRequestMicrosite'
+import { breadcrumbJsonLd, eventJsonLd, jsonLdScript } from '@/utilities/jsonLd'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { getCachedGlobal } from '@/utilities/getGlobals'
@@ -58,9 +64,36 @@ export default async function EventPage({ params: paramsPromise }: Args) {
 
   const theme = await getCachedGlobal('theme', 1)()
   const heroDarkOverlay = Boolean(theme?.heroDarkOverlay)
+  const origin = await getRequestPublicOrigin()
+  const lang = await getRequestLang()
+  const context = await getRequestMicrositeContext()
+  const siteName = context?.microsite.title || 'IX Exhibitions'
+  const image =
+    event.heroImage && typeof event.heroImage === 'object' && event.heroImage.url
+      ? `${origin}${event.heroImage.url}`
+      : undefined
+
+  const jsonLd = [
+    eventJsonLd({
+      name: event.title,
+      url: `${origin}${url}`,
+      description: event.meta?.description,
+      startDate: event.eventDate,
+      locationName: event.location,
+      image,
+    }),
+    breadcrumbJsonLd({
+      items: [
+        { name: siteName, url: origin },
+        { name: lang === 'sq' ? 'Eventet' : 'Events', url: `${origin}/events` },
+        { name: event.title, url: `${origin}${url}` },
+      ],
+    }),
+  ]
 
   return (
     <article className="pt-16 pb-16">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(jsonLd)} />
       <PageClient heroDarkOverlay={heroDarkOverlay} />
 
       <PayloadRedirects disableNotFound url={url} />

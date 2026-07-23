@@ -1,5 +1,6 @@
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
+import { unstable_cache } from 'next/cache'
 import { cache } from 'react'
 
 import type { PublicLang } from '@/microsite/constants'
@@ -37,11 +38,19 @@ function youtubeThumb(url: string): string | null {
   }
 }
 
+const loadMainSiteDoc = unstable_cache(
+  async () => {
+    const payload = await getPayload({ config: configPromise })
+    return payload.findGlobal({ slug: 'main-site', depth: 1 })
+  },
+  ['main-site-global'],
+  { tags: ['global_main-site'], revalidate: 60 },
+)
+
 export const getMainSiteContent = cache(async (lang: PublicLang): Promise<IxMainContent> => {
   const fallback = defaultIxContent(lang)
   try {
-    const payload = await getPayload({ config: configPromise })
-    const doc = await payload.findGlobal({ slug: 'main-site', depth: 1 })
+    const doc = await loadMainSiteDoc()
     if (!doc) return fallback
 
     const sq = lang === 'sq'
@@ -87,6 +96,13 @@ export const getMainSiteContent = cache(async (lang: PublicLang): Promise<IxMain
 
     return {
       theme,
+      seoTitle: pick(sq, (doc as { seoTitleEn?: string }).seoTitleEn, (doc as { seoTitleSq?: string }).seoTitleSq, fallback.seoTitle),
+      seoDescription: pick(
+        sq,
+        (doc as { seoDescriptionEn?: string }).seoDescriptionEn,
+        (doc as { seoDescriptionSq?: string }).seoDescriptionSq,
+        fallback.seoDescription,
+      ),
       nav: {
         about: pick(sq, doc.navAboutEn, doc.navAboutSq, fallback.nav.about),
         events: pick(sq, doc.navEventsEn, doc.navEventsSq, fallback.nav.events),

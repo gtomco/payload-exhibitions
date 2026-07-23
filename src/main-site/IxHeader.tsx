@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import React, { useState } from 'react'
 
-import type { PublicLang } from '@/microsite/constants'
+import { DEFAULT_PUBLIC_LANG, type PublicLang } from '@/microsite/constants'
 import type { IxMainContent, IxPlatformLink } from '@/main-site/defaults'
 
 type Props = {
@@ -12,12 +13,16 @@ type Props = {
   platforms: IxPlatformLink[]
 }
 
-function langSwitchHref(target: PublicLang) {
-  return `/?lang=${target}`
+function switchLangHref(target: PublicLang, pathname: string) {
+  let path = pathname || '/'
+  path = path.replace(/^\/(en|sq)(?=\/|$)/, '') || '/'
+  if (target === DEFAULT_PUBLIC_LANG) return path
+  return path === '/' ? `/${target}` : `/${target}${path}`
 }
 
 export function IxHeader({ lang, nav, platforms }: Props) {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname() || '/'
 
   const links = [
     { href: '/#about', label: nav.about },
@@ -61,11 +66,11 @@ export function IxHeader({ lang, nav, platforms }: Props) {
 
         <div className="ix-header__tools">
           <div className="ix-lang" aria-label="Language">
-            <a href={langSwitchHref('en')} aria-current={lang === 'en' ? 'true' : undefined}>
+            <a href={switchLangHref('en', pathname)} aria-current={lang === 'en' ? 'true' : undefined}>
               EN
             </a>
             <span className="ix-lang__sep">|</span>
-            <a href={langSwitchHref('sq')} aria-current={lang === 'sq' ? 'true' : undefined}>
+            <a href={switchLangHref('sq', pathname)} aria-current={lang === 'sq' ? 'true' : undefined}>
               SQ
             </a>
           </div>
@@ -107,11 +112,11 @@ export function IxHeader({ lang, nav, platforms }: Props) {
           </a>
         ))}
         <div className="ix-mobile-nav__lang">
-          <a href={langSwitchHref('en')} aria-current={lang === 'en' ? 'true' : undefined}>
+          <a href={switchLangHref('en', pathname)} aria-current={lang === 'en' ? 'true' : undefined}>
             EN
           </a>
           <span>|</span>
-          <a href={langSwitchHref('sq')} aria-current={lang === 'sq' ? 'true' : undefined}>
+          <a href={switchLangHref('sq', pathname)} aria-current={lang === 'sq' ? 'true' : undefined}>
             SQ
           </a>
         </div>

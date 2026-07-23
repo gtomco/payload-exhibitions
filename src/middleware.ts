@@ -5,6 +5,7 @@ import {
   DEFAULT_PUBLIC_LANG,
   PUBLIC_LANG_COOKIE,
   PUBLIC_LANG_HEADER,
+  PUBLIC_LANG_PREFIX_HEADER,
   PUBLIC_LANGS,
   PUBLIC_MICROSITE_BASE_PATH_HEADER,
   PUBLIC_MICROSITE_HOST_HEADER,
@@ -45,6 +46,7 @@ function requestHost(request: NextRequest): string {
  * - Apex / ROOT_DOMAIN → IX main site (no slug header)
  * - {slug}.ROOT_DOMAIN → microsite
  * - /m/{slug}/... when ENABLE_PATH_MICROSITES is enabled (default locally)
+ * - /en/... and /sq/... are crawlable: rewrite (keep URL), never redirect away
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -68,12 +70,16 @@ export function middleware(request: NextRequest) {
   if (langQuery && isPublicLang(langQuery)) {
     const clean = request.nextUrl.clone()
     clean.searchParams.delete('lang')
+    const prefix = langQuery === DEFAULT_PUBLIC_LANG ? '' : `/${langQuery}`
+    const path = clean.pathname === '/' ? '/' : clean.pathname
+    clean.pathname = prefix ? `${prefix}${path === '/' ? '' : path}` : path
     return withLangCookie(NextResponse.redirect(clean), langQuery)
   }
 
   let workingPath = pathname
   let pathSlug: string | null = null
   let basePath: string | null = null
+  let langPrefixCode: PublicLang | null = null
 
   const allowPathMicrosites = pathMicrositesEnabled()
   const micrositePath = workingPath.match(/^\/m\/([a-z0-9-]+)(?=\/|$)/i)
@@ -89,13 +95,8 @@ export function middleware(request: NextRequest) {
   const langPrefix = workingPath.match(/^\/(en|sq)(?=\/|$)/)
   if (langPrefix) {
     lang = langPrefix[1] as PublicLang
+    langPrefixCode = lang
     workingPath = workingPath.replace(/^\/(en|sq)/, '') || '/'
-
-    if (!pathSlug) {
-      const target = request.nextUrl.clone()
-      target.pathname = workingPath === '/' ? '/' : workingPath
-      return withLangCookie(NextResponse.redirect(target), lang)
-    }
   }
 
   const needsRewrite = workingPath !== pathname
@@ -105,6 +106,7 @@ export function middleware(request: NextRequest) {
   requestHeaders.set(PUBLIC_MICROSITE_HOST_HEADER, host)
   if (origin) requestHeaders.set(PUBLIC_MICROSITE_ORIGIN_HEADER, origin)
   requestHeaders.set(PUBLIC_LANG_HEADER, lang)
+  if (langPrefixCode) requestHeaders.set(PUBLIC_LANG_PREFIX_HEADER, langPrefixCode)
   if (basePath) requestHeaders.set(PUBLIC_MICROSITE_BASE_PATH_HEADER, basePath)
 
   const querySlug = request.nextUrl.searchParams.get('microsite')

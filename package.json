@@ -7,7 +7,6 @@
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     "ci": "payload migrate && npm run build",
-    "postbuild": "next-sitemap --config next-sitemap.config.cjs",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "dev:3001": "cross-env NODE_OPTIONS=--no-deprecation next dev -p 3001",
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
@@ -54,7 +53,6 @@
     "html5-qrcode": "^2.3.8",
     "lucide-react": "0.563.0",
     "next": "16.2.6",
-    "next-sitemap": "^4.2.3",
     "nodemailer": "^9.0.3",
     "payload": "3.85.1",
     "pdfkit": "^0.19.1",

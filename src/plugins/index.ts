@@ -16,13 +16,17 @@ import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
+  return doc?.title ? `${doc.title} | IX Exhibitions` : 'IX Exhibitions'
 }
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
   const url = getServerSideURL()
-
-  return doc?.slug ? `${url}/${doc.slug}` : url
+  if (!doc?.slug) return url
+  // Posts live under /news on the public site
+  if ('categories' in doc || 'publishedAt' in doc) {
+    return `${url}/news/${doc.slug}`
+  }
+  return `${url}/${doc.slug}`
 }
 
 export const plugins: Plugin[] = [
